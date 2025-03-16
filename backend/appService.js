@@ -3,7 +3,7 @@ const loadEnvFile = require('./utils/envUtil');
 
 const envVariables = loadEnvFile('./.env');
 
-// Database configuration setup. Ensure your .env file has the required database credentials.
+
 const dbConfig = {
     user: envVariables.ORACLE_USER,
     password: envVariables.ORACLE_PASS,
@@ -14,7 +14,7 @@ const dbConfig = {
     poolTimeout: 60
 };
 
-// initialize connection pool
+
 async function initializeConnectionPool() {
     try {
         await oracledb.createPool(dbConfig);
@@ -27,7 +27,7 @@ async function initializeConnectionPool() {
 async function closePoolAndExit() {
     console.log('\nTerminating');
     try {
-        await oracledb.getPool().close(10); // 10 seconds grace period for connections to finish
+        await oracledb.getPool().close(10); 
         console.log('Pool closed');
         process.exit(0);
     } catch (err) {
@@ -67,7 +67,7 @@ async function withOracleDB(action) {
 
 // ----------------------------------------------------------
 // Core functions for database operations
-// Modify these functions, especially the SQL queries, based on your project's requirements and design.
+
 async function testOracleConnection() {
     return await withOracleDB(async (connection) => {
         return true;
@@ -145,14 +145,14 @@ async function fetchDemotableFromDb() {
 async function initiateSponsorTables() {
     return await withOracleDB(async (connection) => {
         try {
-            // Drop tables in reverse order of dependencies
+
             await connection.execute(`DROP TABLE Sponsor`);
             await connection.execute(`DROP TABLE Sponsor_Tier`);
         } catch(err) {
             console.log('Tables might not exist, proceeding to create...');
         }
 
-        // Create sequences
+
         try {
             await connection.execute(`DROP SEQUENCE sponsor_seq`);
         } catch(err) {
@@ -265,8 +265,8 @@ async function initiateTeamTables() {
     });
 }
 
-// INSERT AREA
-// TODO: TIDY THIS UP! Put into some helper file or something.
+
+
 async function insertSponsorTier(tierLevel, amountContributed) {
     return await withOracleDB(async (connection) => {
         const result = await connection.execute(
@@ -310,19 +310,19 @@ async function insertTeamPrincipal(principalName, teamName) {
 
             return result.rowsAffected && result.rowsAffected > 0;
         } catch (error) {
-            // Check if it's a unique constraint violation
+
             if (error.errorNum === 1 || (error.message && error.message.includes("unique constraint"))) {
                 console.error(`Team name '${teamName}' already exists`);
-                // You could throw a more specific error here
+
                 throw new Error(`Team name '${teamName}' already exists`);
             } else {
-                // For other errors
+
                 console.error("Error inserting team principal:", error);
                 throw error;
             }
         }
     }).catch((error) => {
-        // Log the error and return false to indicate failure
+
         console.error(error.message || "Unknown error");
         return false;
     });
@@ -345,16 +345,16 @@ async function insertTeam(principalName, yearFounded) {
 }
 
 async function insertTeamWithPrincipal(principalName, teamName, yearFounded) {
-    // First, try to insert the team principal
+
     const principalResult = await insertTeamPrincipal(principalName, teamName);
 
-    // If principal insertion failed due to constraint (but didn't throw), don't proceed
+
     if (!principalResult) {
         console.log("Failed to insert team principal");
         return false;
     }
 
-    // Then, insert the team
+
     return await insertTeam(principalName, yearFounded);
 }
 
