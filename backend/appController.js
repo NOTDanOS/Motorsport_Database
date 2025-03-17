@@ -3,9 +3,7 @@ const appService = require('./appService');
 
 const router = express.Router();
 
-// ----------------------------------------------------------
-// API endpoints
-// Modify or extend these routes based on your project's needs.
+
 router.get('/check-db-connection', async (req, res) => {
     const isConnect = await appService.testOracleConnection();
     if (isConnect) {
@@ -38,7 +36,7 @@ router.post("/initiate-team-tables", async (req, res) => {
     }
 });
 
-// For inserting sponsor tiers
+
 router.post("/insert-sponsor-tier", async (req, res) => {
     const { tierLevel, amountContributed } = req.body;
     const insertResult = await appService.insertSponsorTier(tierLevel, amountContributed);
@@ -49,7 +47,7 @@ router.post("/insert-sponsor-tier", async (req, res) => {
     }
 });
 
-// For inserting sponsors
+
 router.post("/insert-sponsor", async (req, res) => {
     const { sponsorName, tierLevel, pointOfContact } = req.body;
     const insertResult = await appService.insertSponsor(sponsorName, tierLevel, pointOfContact);
