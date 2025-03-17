@@ -7,6 +7,9 @@ import { tableConfigs } from "../utils/tableConfigs";
 
 export default function Home() {
   const [selectedTable, setSelectedTable] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [message, setMessage] = useState({ text: "", type: "" });
+
 
   const handleTableChange = (tableName) => {
     setSelectedTable(tableName);
@@ -23,7 +26,7 @@ export default function Home() {
 
       switch(selectedTable) {
         case "Sponsor_Tier":
-          endpoint = "/api/insert-sponsor-tier";
+          endpoint = "/api/sponsors/insert-tier";
           payload = {
             tierLevel: formData.tier_level,
             amountContributed: parseInt(formData.amount_contributed)
@@ -31,7 +34,7 @@ export default function Home() {
           break;
         
         case "Sponsor":
-          endpoint = "/api/insert-sponsor";
+          endpoint = "/api/sponsors/insert";
           payload = {
             sponsorName: formData.sponsor_name,
             tierLevel: formData.tier_level || null,
@@ -40,7 +43,7 @@ export default function Home() {
           break;
         
         case "Team_Principal":
-          endpoint = "/api/insert-team";
+          endpoint = "/api/insert/insert-team";
           payload = {
             principalName: formData.team_principal,
             teamName: formData.team_name,
