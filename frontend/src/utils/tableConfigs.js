@@ -20,6 +20,7 @@ export const tableConfigs = {
     ],
   },
 
+  // TODO: there should be preset sponsor tiers (bronze, silver..., diamond). Make it drop down maybe?
   Sponsor: {
     fields: [
       {

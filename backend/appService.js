@@ -27,7 +27,7 @@ async function initializeConnectionPool() {
 async function closePoolAndExit() {
     console.log('\nTerminating');
     try {
-        await oracledb.getPool().close(10); 
+        await oracledb.getPool().close(10);
         console.log('Pool closed');
         process.exit(0);
     } catch (err) {
@@ -48,7 +48,7 @@ process
 async function withOracleDB(action) {
     let connection;
     try {
-        connection = await oracledb.getConnection(); // Gets a connection from the default pool 
+        connection = await oracledb.getConnection(); // Gets a connection from the default pool
         return await action(connection);
     } catch (err) {
         console.error(err);
@@ -76,71 +76,8 @@ async function testOracleConnection() {
     });
 }
 
-async function fetchDemotableFromDb() {
-    return await withOracleDB(async (connection) => {
-        const result = await connection.execute('SELECT * FROM DEMOTABLE');
-        return result.rows;
-    }).catch(() => {
-        return [];
-    });
-}
-
-/* async function initiateDemotable() {
-    return await withOracleDB(async (connection) => {
-        try {
-            await connection.execute(`DROP TABLE DEMOTABLE`);
-        } catch(err) {
-            console.log('Table might not exist, proceeding to create...');
-        }
-
-        const result = await connection.execute(`
-            CREATE TABLE DEMOTABLE (
-                id NUMBER PRIMARY KEY,
-                name VARCHAR2(20)
-            )
-        `);
-        return true;
-    }).catch(() => {
-        return false;
-    });
-}*/
-
-/*async function insertDemotable(id, name) {
-    return await withOracleDB(async (connection) => {
-        const result = await connection.execute(
-            `INSERT INTO DEMOTABLE (id, name) VALUES (:id, :name)`,
-            [id, name],
-            { autoCommit: true }
-        );
-
-        return result.rowsAffected && result.rowsAffected > 0;
-    }).catch(() => {
-        return false;
-    });
-}*/
-
-/*async function updateNameDemotable(oldName, newName) {
-    return await withOracleDB(async (connection) => {
-        const result = await connection.execute(
-            `UPDATE DEMOTABLE SET name=:newName where name=:oldName`,
-            [newName, oldName],
-            { autoCommit: true }
-        );
-
-        return result.rowsAffected && result.rowsAffected > 0;
-    }).catch(() => {
-        return false;
-    });
-}*/
-
-/*async function countDemotable() {
-    return await withOracleDB(async (connection) => {
-        const result = await connection.execute('SELECT Count(*) FROM DEMOTABLE');
-        return result.rows[0][0];
-    }).catch(() => {
-        return -1;
-    });
-}*/
+// SPONSORS GO HERE
+// TODO: there should be preset sponsor tiers (bronze, silver..., diamond). Users shouldn't make new ones
 
 async function initiateSponsorTables() {
     return await withOracleDB(async (connection) => {
@@ -166,7 +103,6 @@ async function initiateSponsorTables() {
             NOCYCLE
         `);
 
-        // Create tables
         await connection.execute(`
             CREATE TABLE Sponsor_Tier (
                 tier_level VARCHAR2(50) PRIMARY KEY,
@@ -181,7 +117,7 @@ async function initiateSponsorTables() {
                 tier_level VARCHAR2(50),
                 point_of_contact VARCHAR2(100),
                 CONSTRAINT fk_sponsor_tier FOREIGN KEY (tier_level) REFERENCES Sponsor_Tier(tier_level)
-                ON DELETE SET NULL
+                    ON DELETE SET NULL
             )
         `);
 
@@ -203,6 +139,39 @@ async function initiateSponsorTables() {
         return false;
     });
 }
+
+async function insertSponsorTier(tierLevel, amountContributed) {
+    return await withOracleDB(async (connection) => {
+        const result = await connection.execute(
+            `INSERT INTO Sponsor_Tier (tier_level, amount_contributed) VALUES (:tier, :amount)`,
+            [tierLevel, amountContributed],
+            { autoCommit: true }
+        );
+
+        return result.rowsAffected && result.rowsAffected > 0;
+    }).catch((error) => {
+        console.error("Error inserting sponsor tier:", error);
+        return false;
+    });
+}
+
+async function insertSponsor(sponsorName, tierLevel, pointOfContact) {
+    return await withOracleDB(async (connection) => {
+        const result = await connection.execute(
+            `INSERT INTO Sponsor (sponsor_name, tier_level, point_of_contact)
+             VALUES (:name, :tier, :contact)`,
+            [sponsorName, tierLevel, pointOfContact],
+            { autoCommit: true }
+        );
+
+        return result.rowsAffected && result.rowsAffected > 0;
+    }).catch((error) => {
+        console.error("Error inserting sponsor:", error);
+        return false;
+    });
+}
+
+// TEAMS GO HERE
 
 async function initiateTeamTables() {
     return await withOracleDB(async (connection) => {
@@ -242,7 +211,7 @@ async function initiateTeamTables() {
                 team_principal VARCHAR2(100),
                 year_founded NUMBER,
                 CONSTRAINT fk_team_principal FOREIGN KEY (team_principal) REFERENCES Team_Principal(team_principal)
-                ON DELETE SET NULL
+                    ON DELETE SET NULL
             )
         `);
 
@@ -265,44 +234,11 @@ async function initiateTeamTables() {
     });
 }
 
-
-
-async function insertSponsorTier(tierLevel, amountContributed) {
-    return await withOracleDB(async (connection) => {
-        const result = await connection.execute(
-            `INSERT INTO Sponsor_Tier (tier_level, amount_contributed) VALUES (:tier, :amount)`,
-            [tierLevel, amountContributed],
-            { autoCommit: true }
-        );
-
-        return result.rowsAffected && result.rowsAffected > 0;
-    }).catch((error) => {
-        console.error("Error inserting sponsor tier:", error);
-        return false;
-    });
-}
-
-async function insertSponsor(sponsorName, tierLevel, pointOfContact) {
-    return await withOracleDB(async (connection) => {
-        const result = await connection.execute(
-            `INSERT INTO Sponsor (sponsor_name, tier_level, point_of_contact)
-             VALUES (:name, :tier, :contact)`,
-            [sponsorName, tierLevel, pointOfContact],
-            { autoCommit: true }
-        );
-
-        return result.rowsAffected && result.rowsAffected > 0;
-    }).catch((error) => {
-        console.error("Error inserting sponsor:", error);
-        return false;
-    });
-}
-
 async function insertTeamPrincipal(principalName, teamName) {
     return await withOracleDB(async (connection) => {
         try {
             const result = await connection.execute(
-                `INSERT INTO Team_Principal (team_principal, team_name) 
+                `INSERT INTO Team_Principal (team_principal, team_name)
                  VALUES (:principal, :team)`,
                 [principalName, teamName],
                 { autoCommit: true }
@@ -346,21 +282,18 @@ async function insertTeam(principalName, yearFounded) {
 
 async function insertTeamWithPrincipal(principalName, teamName, yearFounded) {
 
-    const principalResult = await insertTeamPrincipal(principalName, teamName);
+    const PrincipalAndTeamName = await insertTeamPrincipal(principalName, teamName);
 
-
-    if (!principalResult) {
+    if (!PrincipalAndTeamName) {
         console.log("Failed to insert team principal");
         return false;
     }
-
 
     return await insertTeam(principalName, yearFounded);
 }
 
 module.exports = {
     testOracleConnection,
-    fetchDemotableFromDb,
     initiateSponsorTables,
     initiateTeamTables,
     insertSponsorTier,
