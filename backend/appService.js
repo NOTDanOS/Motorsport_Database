@@ -153,6 +153,16 @@ async function insertSponsor(sponsorName, tierLevel, pointOfContact) {
     });
 }
 
+async function fetchSponsorTiers() {
+    return await withOracleDB(async (connection) => {
+        const result = await connection.execute(`SELECT tier_level, amount_contributed FROM Sponsor_Tier`);
+        return result.rows.map(row => ({
+            tier_level: row[0],
+            amount_contributed: row[1]
+        }));
+    });
+}
+
 async function fetchSponsors() {
     return await withOracleDB(async (connection) => {
         const result = await connection.execute(`SELECT sponsor_name, tier_level, point_of_contact FROM Sponsor`);
@@ -252,6 +262,7 @@ module.exports = {
     initiateSponsorTables,
     insertSponsorTier,
     insertSponsor,
+    fetchSponsorTiers,
     fetchSponsors,
     initiateTeamTables,
     insertTeamWithPrincipal,

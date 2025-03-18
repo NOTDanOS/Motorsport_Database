@@ -53,6 +53,16 @@ router.post("/insert-sponsor", async (req, res) => {
     }
 });
 
+router.get("/get-sponsor-tiers", async (req, res) => {
+    try {
+        const sponsors = await appService.fetchSponsorTiers();
+        return res.json({ success: true, data: sponsors });
+    } catch (err) {
+        return res.status(500).json({ success: false, message: "Failed to fetch sponsor tiers",
+            error: err.message });
+    }
+});
+
 router.get("/get-sponsors", async (req, res) => {
     try {
         const sponsors = await appService.fetchSponsors();
