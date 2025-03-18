@@ -15,6 +15,7 @@ router.get('/check-db-connection', async (req, res) => {
     }
 });
 
+//SPONSOR Section
 router.post("/initiate-sponsor-tables", async (req, res) => {
     try {
         const result = await appService.initiateSponsorTables();
@@ -52,6 +53,16 @@ router.post("/insert-sponsor", async (req, res) => {
     }
 });
 
+router.get("/get-sponsors", async (req, res) => {
+    try {
+        const sponsors = await appService.fetchSponsors();
+        return res.json({ success: true, data: sponsors });
+    } catch (err) {
+        return res.status(500).json({ success: false, message: "Failed to fetch sponsors", error: err.message });
+    }
+});
+
+// TEAM section
 router.post("/initiate-team-tables", async (req, res) => {
     try {
         const result = await appService.initiateTeamTables();
@@ -72,6 +83,15 @@ router.post("/insert-team", async (req, res) => {
         return res.json({ success: result });
     } catch (err) {
         return res.status(500).json({ success: false, message: "Failed to insert team", error: err.message });
+    }
+});
+
+router.get("/get-teams", async (req, res) => {
+    try {
+        const teams = await appService.fetchTeams();
+        return res.json({ success: true, data: teams });
+    } catch (err) {
+        return res.status(500).json({ success: false, message: "Failed to fetch teams", error: err.message });
     }
 });
 
