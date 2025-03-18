@@ -1,5 +1,4 @@
 export const tableConfigs = {
-
   Sponsor_Tier: {
     fields: [
       {
@@ -20,7 +19,7 @@ export const tableConfigs = {
     ],
   },
 
-  // TODO: there should be preset sponsor tiers (bronze, silver..., diamond). Make it drop down maybe?
+  // Using dropdown for sponsor tiers
   Sponsor: {
     fields: [
       {
@@ -33,8 +32,8 @@ export const tableConfigs = {
       },
       {
         name: "tier_level",
-        type: "VARCHAR",
-        maxLength: 50,
+        type: "dropdown",
+        options: ["Bronze", "Silver", "Gold", "Platinum", "Diamond"],
         label: "Tier Level",
         nullable: true,
         description: "Foreign Key referencing Sponsor_Tier",
@@ -70,7 +69,4 @@ export const tableConfigs = {
       },
     ],
   },
-  
-  
-
 };
