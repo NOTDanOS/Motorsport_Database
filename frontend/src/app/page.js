@@ -1,12 +1,38 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import FormContainer from "../components/FormContainer";
 import TableSelect from "../components/TableSelect";
 import { tableConfigs } from "../utils/tableConfigs";
 
 export default function Home() {
   const [selectedTable, setSelectedTable] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [message, setMessage] = useState({ text: "", type: "" });
+
+  useEffect(() => {
+    const initializeSponsorTables = async () => {
+      try {
+        const response = await fetch("/api/initiate-sponsor-tables", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+
+        const data = await response.json();
+        if (data.success) {
+          console.log("Sponsor tables initialized successfully");
+        } else {
+          console.error("Failed to initialize sponsor tables:", data.message);
+        }
+      } catch (error) {
+        console.error("Error initializing sponsor tables:", error);
+      }
+    };
+
+    initializeSponsorTables();
+  }, []);
 
   const handleTableChange = (tableName) => {
     setSelectedTable(tableName);
@@ -22,7 +48,7 @@ export default function Home() {
 
       switch (selectedTable) {
         case "Sponsor_Tier":
-          endpoint = "/insert-sponsor-tier";
+          endpoint = "/api/insert-sponsor-tier";
           payload = {
             tierLevel: formData.tier_level,
             amountContributed: parseInt(formData.amount_contributed),
@@ -30,7 +56,7 @@ export default function Home() {
           break;
 
         case "Sponsor":
-          endpoint = "/insert-sponsor";
+          endpoint = "/api/insert-sponsor";
           payload = {
             sponsorName: formData.sponsor_name,
             tierLevel: formData.tier_level || null,
@@ -39,7 +65,7 @@ export default function Home() {
           break;
 
         case "Team_Principal":
-          endpoint = "/insert-team";
+          endpoint = "/api/insert-team";
           payload = {
             principalName: formData.team_principal,
             teamName: formData.team_name,
