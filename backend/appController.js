@@ -3,72 +3,76 @@ const appService = require('./appService');
 
 const router = express.Router();
 
-
+// ----------------------------------------------------------
+// API endpoints
+// Modify or extend these routes based on your project's needs.
 router.get('/check-db-connection', async (req, res) => {
-    const isConnect = await appService.testOracleConnection();
-    if (isConnect) {
-        res.send('connected');
-    } else {
-        res.send('unable to connect');
+    try {
+        const isConnected = await appService.testOracleConnection();
+        return res.json({ success: isConnected });
+    } catch (err) {
+        return res.status(500).json({ success: false, message: "Database connection failed", error: err.message });
     }
 });
 
-router.get('/demotable', async (req, res) => {
-    const tableContent = await appService.fetchDemotableFromDb();
-    res.json({data: tableContent});
+router.post("/initiate-sponsor-tables", async (req, res) => {
+    try {
+        const result = await appService.initiateSponsorTables();
+        return res.json({ success: result });
+    } catch (err) {
+        return res.status(500).json({ success: false, message: "Failed to initiate sponsor tables", error: err.message });
+    }
 });
 
-router.post("/initiate-sponsor-tables", async (req, res) => {
-    const initiateResult = await appService.initiateSponsorTables();
-    if (initiateResult) {
-        res.json({ success: true });
-    } else {
-        res.status(500).json({ success: false });
+router.post("/insert-sponsor-tier", async (req, res) => {
+    const { tierLevel, amountContributed } = req.body;
+    if (!tierLevel || amountContributed == null) {
+        return res.status(400).json({ success: false, message: "Missing tierLevel or amountContributed" });
+    }
+
+    try {
+        const result = await appService.insertSponsorTier(tierLevel, amountContributed);
+        return res.json({ success: result });
+    } catch (err) {
+        return res.status(500).json({ success: false, message: "Failed to insert sponsor tier", error: err.message });
+    }
+});
+
+router.post("/insert-sponsor", async (req, res) => {
+    const { sponsorName, tierLevel, pointOfContact } = req.body;
+    if (!sponsorName) {
+        return res.status(400).json({ success: false, message: "Missing sponsorName" });
+    }
+
+    try {
+        const result = await appService.insertSponsor(sponsorName, tierLevel, pointOfContact);
+        return res.json({ success: result });
+    } catch (err) {
+        return res.status(500).json({ success: false, message: "Failed to insert sponsor", error: err.message });
     }
 });
 
 router.post("/initiate-team-tables", async (req, res) => {
-    const initiateResult = await appService.initiateTeamTables();
-    if (initiateResult) {
-        res.json({ success: true });
-    } else {
-        res.status(500).json({ success: false });
-    }
-});
-
-
-router.post("/insert-sponsor-tier", async (req, res) => {
-    const { tierLevel, amountContributed } = req.body;
-    const insertResult = await appService.insertSponsorTier(tierLevel, amountContributed);
-    if (insertResult) {
-        res.json({ success: true });
-    } else {
-        res.status(500).json({ success: false });
-    }
-});
-
-
-router.post("/insert-sponsor", async (req, res) => {
-    const { sponsorName, tierLevel, pointOfContact } = req.body;
-    const insertResult = await appService.insertSponsor(sponsorName, tierLevel, pointOfContact);
-    if (insertResult) {
-        res.json({ success: true });
-    } else {
-        res.status(500).json({ success: false });
+    try {
+        const result = await appService.initiateTeamTables();
+        return res.json({ success: result });
+    } catch (err) {
+        return res.status(500).json({ success: false, message: "Failed to initiate team tables", error: err.message });
     }
 });
 
 router.post("/insert-team", async (req, res) => {
     const { principalName, teamName, yearFounded } = req.body;
+    if (!principalName || !teamName || !yearFounded) {
+        return res.status(400).json({ success: false, message: "Missing required fields" });
+    }
 
-    const createResult = await appService.insertTeamWithPrincipal(principalName, teamName, yearFounded);
-
-    if (createResult) {
-        res.json({ success: true });
-    } else {
-        res.status(500).json({ success: false });
+    try {
+        const result = await appService.insertTeamWithPrincipal(principalName, teamName, yearFounded);
+        return res.json({ success: result });
+    } catch (err) {
+        return res.status(500).json({ success: false, message: "Failed to insert team", error: err.message });
     }
 });
-
 
 module.exports = router;
