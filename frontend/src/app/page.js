@@ -7,8 +7,6 @@ import { tableConfigs } from "../utils/tableConfigs";
 
 export default function Home() {
   const [selectedTable, setSelectedTable] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [message, setMessage] = useState({ text: "", type: "" });
 
   const handleTableChange = (tableName) => {
     setSelectedTable(tableName);
@@ -90,7 +88,7 @@ export default function Home() {
     <div className="min-h-screen p-8 flex flex-col items-center">
       <header className="w-full max-w-3xl mb-8 text-center">
         <h1 className="text-3xl font-bold mb-2">
-          Motosport Database Management
+          Motorsport Database Management
         </h1>
         <p className="text-gray-600 dark:text-gray-300">Insert Data</p>
       </header>
