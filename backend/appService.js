@@ -71,42 +71,42 @@ async function testOracleConnection() {
 async function initiateSponsorTables() {
     return await withOracleDB(async (connection) => {
         try {
-            console.log("Dropping existing tables if they exist...");
+            const checkResult = await connection.execute(`
+                SELECT table_name FROM user_tables WHERE table_name = 'SPONSOR_TIER'
+            `);
 
-            // Drop tables in the correct order to avoid dependency conflicts
-            await connection.execute(`DROP TABLE Sponsor CASCADE CONSTRAINTS PURGE`);
-            await connection.execute(`DROP TABLE Sponsor_Tier CASCADE CONSTRAINTS PURGE`);
+            if (checkResult.rows.length > 0) {
+                console.log("Sponsor tables already exist. Skipping creation.");
+                return false; // Tables already exist
+            }
+
+            console.log("Sponsor tables not found. Creating tables...");
+
+            await connection.execute(`
+                CREATE TABLE Sponsor_Tier (
+                    tier_level VARCHAR2(50) PRIMARY KEY,
+                    amount_contributed NUMBER CHECK (amount_contributed >= 0)
+                )
+            `);
+
+            await connection.execute(`
+                CREATE TABLE Sponsor (
+                    sponsor_id NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+                    sponsor_name VARCHAR2(50) NOT NULL UNIQUE,
+                    tier_level VARCHAR2(50),
+                    point_of_contact VARCHAR2(100),
+                    CONSTRAINT fk_sponsor_tier FOREIGN KEY (tier_level) 
+                        REFERENCES Sponsor_Tier(tier_level) 
+                        ON DELETE SET NULL
+                )
+            `);
+
+            console.log("Sponsor tables created successfully.");
+            return true;
         } catch (error) {
-            console.warn("Tables might not exist. Proceeding with creation...");
+            console.error("Error checking/creating sponsor tables:", error);
+            return false;
         }
-
-        console.log("Creating Sponsor_Tier table...");
-        await connection.execute(`
-            CREATE TABLE Sponsor_Tier (
-                tier_level VARCHAR2(50) PRIMARY KEY,
-                amount_contributed NUMBER CHECK (amount_contributed >= 0)
-            )
-        `);
-
-        console.log("Creating Sponsor table...");
-        await connection.execute(`
-            CREATE TABLE Sponsor (
-                sponsor_id NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-                sponsor_name VARCHAR2(50) NOT NULL UNIQUE,
-                tier_level VARCHAR2(50),
-                point_of_contact VARCHAR2(100),
-                CONSTRAINT fk_sponsor_tier FOREIGN KEY (tier_level) 
-                    REFERENCES Sponsor_Tier(tier_level) 
-                    ON DELETE SET NULL
-            )
-        `);
-
-        console.log("Sponsor tables created successfully");
-
-        return true;
-    }).catch((err) => {
-        console.error("Error creating sponsor tables:", err);
-        return false;
     });
 }
 
@@ -153,44 +153,62 @@ async function insertSponsor(sponsorName, tierLevel, pointOfContact) {
     });
 }
 
+async function fetchSponsors() {
+    return await withOracleDB(async (connection) => {
+        const result = await connection.execute(`SELECT sponsor_name, tier_level, point_of_contact FROM Sponsor`);
+        return result.rows.map(row => ({
+            sponsor_name: row[0],
+            tier_level: row[1],
+            point_of_contact: row[2]
+        }));
+    });
+}
+
 
 // TEAM Stuff
 
 async function initiateTeamTables() {
     return await withOracleDB(async (connection) => {
         try {
-            await connection.execute(`DROP TABLE Team_Principal CASCADE CONSTRAINTS`);
-            await connection.execute(`DROP TABLE Team CASCADE CONSTRAINTS`);
-        } catch {}
+            // Check if the Team_Principal table exists
+            const checkResult = await connection.execute(`
+                SELECT table_name FROM user_tables WHERE table_name = 'TEAM_PRINCIPAL'
+            `);
 
-        const result = await connection.execute(`
-            CREATE TABLE Team_Principal (
-                team_principal VARCHAR2(100) PRIMARY KEY,
-                team_name VARCHAR(100) UNIQUE
-            )
-        `);
+            if (checkResult.rows.length > 0) {
+                console.log("Team tables already exist. Skipping creation.");
+                return false; // Tables already exist
+            }
 
-        await connection.execute(`
-            CREATE TABLE Team (
-                team_id NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-                team_principal VARCHAR2(100) NOT NULL,
-                year_founded NUMBER (4) 
-                    CHECK (year_founded BETWEEN 1000 AND 9999) NOT NULL,
-                CONSTRAINT fk_team_principal 
-                    FOREIGN KEY (team_principal) REFERENCES Team_Principal(team_principal) 
-                    ON DELETE SET NULL
-            )
-        `);
-        // we used number(4) cuz we only want numbers of 4 digits
+            console.log("Team tables not found. Creating tables...");
 
-        console.log("Team tables created successfully");
+            await connection.execute(`
+                CREATE TABLE Team_Principal (
+                    team_principal VARCHAR2(100) PRIMARY KEY,
+                    team_name VARCHAR(100) UNIQUE
+                )
+            `);
 
-        return true;
-    }).catch((err) => {
-        console.error("Error creating team tables:", err);
-        return false;
+            await connection.execute(`
+                CREATE TABLE Team (
+                    team_id NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+                    team_principal VARCHAR2(100) NOT NULL,
+                    year_founded NUMBER (4) CHECK (year_founded BETWEEN 1000 AND 9999) NOT NULL,
+                    CONSTRAINT fk_team_principal FOREIGN KEY (team_principal) 
+                        REFERENCES Team_Principal(team_principal) 
+                        ON DELETE SET NULL
+                )
+            `);
+
+            console.log("Team tables created successfully.");
+            return true;
+        } catch (error) {
+            console.error("Error checking/creating team tables:", error);
+            return false;
+        }
     });
 }
+
 
 async function insertTeamWithPrincipal(principalName, teamName, yearFounded) {
     return await withOracleDB(async (connection) => {
@@ -217,11 +235,25 @@ async function insertTeamWithPrincipal(principalName, teamName, yearFounded) {
     });
 }
 
+async function fetchTeams() {
+    return await withOracleDB(async (connection) => {
+        const result = await connection.execute(`SELECT team_name, team_principal, year_founded FROM Team`);
+        return result.rows.map(row => ({
+            team_name: row[0],
+            team_principal: row[1],
+            year_founded: row[2]
+        }));
+    });
+}
+
 
 module.exports = {
     testOracleConnection,
     initiateSponsorTables,
     insertSponsorTier,
     insertSponsor,
-    insertTeamWithPrincipal
+    fetchSponsors,
+    initiateTeamTables,
+    insertTeamWithPrincipal,
+    fetchTeams
 };
