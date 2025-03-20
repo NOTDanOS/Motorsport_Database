@@ -28,7 +28,7 @@ export default function ViewPage() {
 
       switch (tableName) {
         case "Sponsor":
-          endpoint = "/api/get-sponsors";
+          endpoint = "/api/get-sponsorsAPI.js";
           break;
         case "Team_Principal":
           endpoint = "/api/get-teams";
