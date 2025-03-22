@@ -1,5 +1,5 @@
 const {withOracleDB} = require("../../utils/oracleHelper");
-const tableExists = require("../../utils/tableExists");
+const {tableExists} = require("../../utils/tableExists");
 
 async function initiateTeamTables() {
     return await withOracleDB(async (connection) => {

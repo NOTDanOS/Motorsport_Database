@@ -63,7 +63,7 @@ async function initiateSponsorTables() {
                 `);
             }
 
-            if (!fundsExists) {
+            /*if (!fundsExists) {
                 await connection.execute(`
                     CREATE TABLE Funds (
                         sponsor_id NUMBER PRIMARY KEY,
@@ -78,7 +78,7 @@ async function initiateSponsorTables() {
                             ON DELETE CASCADE FOREIGN KEY (team_id)
                     )
                 `);
-            }
+            }*/
 
             console.log("Sponsor tables created successfully.");
             return true;

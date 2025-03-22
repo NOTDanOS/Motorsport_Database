@@ -6,9 +6,16 @@ const {tableExists} = require("../../utils/tableExists");
 async function initiateVehicleTables() {
     return await withOracleDB(async (connection) => {
         try {
+            const teamTableExists = await tableExists("Team");
+            const driverTableExists = await tableExists("Driver");
             const vehicleTableExists = await tableExists("Vehicle");
             const carTableExists = await tableExists("Car");
             const motorcycleTableExists = await tableExists("Motorcycle");
+
+            if (!teamTableExists || !driverTableExists) {
+                console.error("Team and/or Driver table does not exist. Cannot create Vehicle table.");
+                return false;
+            }
 
             if (vehicleTableExists && carTableExists && motorcycleTableExists) {
                 console.log("Vehicle table already exist. Skipping creation.");
@@ -29,7 +36,7 @@ async function initiateVehicleTables() {
                         REFERENCES Team(team_id) 
                         ON DELETE SET NULL,
                     CONSTRAINT fk_driver FOREIGN KEY (driver_id)
-                        REFERENCES Driver(driver_id)
+                        REFERENCES Driver_Internal(driver_id)
                         ON DELETE SET NULL
                 )
             `);
