@@ -1,5 +1,6 @@
 const express = require('express');
 const appService = require('./appService');
+const dbInitRoutes = require('./routes/initRoute');
 
 const router = express.Router();
 
@@ -26,5 +27,6 @@ router.use('/teams', teamRoutes);
 router.use('/racing-series', racingSeriesRoutes);
 router.use('/drivers', driverRoutes);
 router.use('/vehicles', vehicleRoutes);
+app.use('/api/db', dbInitRoutes);
 
 module.exports = router;
