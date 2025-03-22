@@ -41,6 +41,55 @@ router.post("/insert", async (req, res) => {
     }
 });
 
+router.post("/update-tier", async (req, res) => {
+    const { oldName, newName, newAmount } = req.body;
+
+    if (!newName && newAmount === undefined) {
+        return res.status(400).json({ success: false, message: "No values given to update." });
+    }
+
+    try {
+        const result = await sponsorService.updateSponsorTier({
+            oldName,
+            newName,
+            newAmount
+        });
+
+        return res.json({ success: result });
+    } catch (err) {
+        return res.status(500).json({
+            success: false,
+            message: "Failed to update sponsor tier",
+            error: err.message
+        });
+    }
+});
+
+router.post("/update", async (req, res) => {
+    const { oldSponsorName, newSponsorName, newTierLevel, newPointOfContact } = req.body;
+
+    if (!newSponsorName && newTierLevel && newPointOfContact === undefined) {
+        return res.status(400).json({ success: false, message: "Double check your json file." });
+    }
+
+    try {
+        const result = await sponsorService.updateSponsor({
+            oldSponsorName,
+            newSponsorName,
+            newTierLevel,
+            newPointOfContact
+        });
+
+        return res.json({ success: result });
+    } catch (err) {
+        return res.status(500).json({
+            success: false,
+            message: "Failed to update sponsor",
+            error: err.message
+        });
+    }
+});
+
 router.get("/tiers", async (req, res) => {
     try {
         const sponsors = await sponsorService.fetchSponsorTiers();

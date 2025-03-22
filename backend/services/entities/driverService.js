@@ -19,7 +19,7 @@ async function initiateDriverTables() {
             if (!driverTableExists) {
                 await connection.execute(`
                 CREATE TABLE Driver (
-                    name VARCHAR2(100) PRIMARY KEY,
+                    driver_name VARCHAR2(100) PRIMARY KEY,
                     driver_number NUMBER NOT NULL
                 )
             `);
@@ -29,10 +29,10 @@ async function initiateDriverTables() {
                 await connection.execute(`
                 CREATE TABLE Driver_Internal (
                     driver_id NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-                    name VARCHAR2(100),
-                    nationality VARCHAR2(50),
-                    CONSTRAINT fk_name FOREIGN KEY (name)
-                    REFERENCES Driver(name)
+                    driver_name VARCHAR2(100),
+                    country_of_origin VARCHAR2(50),
+                    CONSTRAINT fk_name FOREIGN KEY (driver_name)
+                    REFERENCES Driver(driver_name)
                     ON DELETE CASCADE
                 )
             `);
@@ -47,17 +47,17 @@ async function initiateDriverTables() {
 }
 
 
-async function insertDriver(name, nationality, driverNumber) {
+async function insertDriver(name, country, number) {
     return await withOracleDB(async (connection) => {
         try {
             await connection.execute(
-                `INSERT INTO Driver (name, driver_number) VALUES (:name, :number)`,
-                [name, driverNumber],
+                `INSERT INTO Driver (driver_name, driver_number) VALUES (:name, :number)`,
+                { name, number }
             );
 
             const result = await connection.execute(
-                `INSERT INTO Driver_Internal (name, nationality) VALUES (:name, :nationality)`,
-                [name, nationality]
+                `INSERT INTO Driver_Internal (driver_name, country_of_origin) VALUES (:name, :country)`,
+                { name, country }
             );
 
             await connection.commit();
@@ -65,7 +65,6 @@ async function insertDriver(name, nationality, driverNumber) {
             return result.rowsAffected > 0;
         } catch (error) {
             console.error("Error inserting driver info:", error);
-
             await connection.rollback();
             return false;
         }
@@ -75,13 +74,13 @@ async function insertDriver(name, nationality, driverNumber) {
 async function fetchDrivers() {
     return await withOracleDB(async (connection) => {
         const result = await connection.execute(`
-            SELECT di.name, di.nationality, d.driver_number
+            SELECT di.driver_name, di.country_of_origin, d.driver_number
             FROM Driver_Internal di
-            JOIN Driver d ON d.name = di.name
+            JOIN Driver d ON d.driver_name = di.driver_name
         `);
         return result.rows.map(row => ({
-            name: row[0],
-            nationality: row[1],
+            driver_name: row[0],
+            country_of_origin: row[1],
             driver_number: row[2]
         }));
     });
