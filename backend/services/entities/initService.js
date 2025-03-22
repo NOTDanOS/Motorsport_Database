@@ -4,7 +4,7 @@ const { initiateTeamTables } = require('./teamService');
 const { initiateDriverTables } = require('./driverService');
 const { initiateRacingTables } = require('./racingSeriesService');
 const { initiateVehicleTables } = require('./vehicleService');
-const { initiateFundsTable } = require('../relationships/fundsService');
+/*const { initiateFundsTable } = require('../relationships/fundsService');*/
 
 async function initializeAllTables() {
     try {
@@ -19,7 +19,7 @@ async function initializeAllTables() {
         const vehicleTablesResult = await initiateVehicleTables();
         
 
-        const fundsTableResult = await initiateFundsTable();
+        /*const fundsTableResult = await initiateFundsTable();*/
         
         console.log("All tables initialization complete.");
         

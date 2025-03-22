@@ -1,3 +1,4 @@
+/*
 const {withOracleDB} = require("../../utils/oracleHelper");
 const {tableExists} = require("../../utils/tableExists");
 
@@ -80,4 +81,4 @@ module.exports = {
     initiateFundsTable,
     insertFunds,
     fetchFunds
-};
+};*/

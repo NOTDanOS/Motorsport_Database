@@ -9,3 +9,5 @@ async function tableExists(tableName) {
         return result.rows[0][0] > 0;
     });
 }
+
+module.exports = {tableExists};
