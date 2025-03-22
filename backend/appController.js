@@ -27,6 +27,8 @@ router.use('/teams', teamRoutes);
 router.use('/racing-series', racingSeriesRoutes);
 router.use('/drivers', driverRoutes);
 router.use('/vehicles', vehicleRoutes);
+router.use('/engineers', engineerRoutes);
+router.use('/funds', fundRoutes);
 router.use('/api/db', dbInitRoutes);
 
 module.exports = router;
