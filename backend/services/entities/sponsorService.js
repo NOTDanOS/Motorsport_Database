@@ -103,7 +103,7 @@ async function insertSponsorTier(tierLevel, amountContributed) {
 
             return result.rowsAffected > 0;
         } catch (error) {
-            console.error("Error inserting sponsor:", error);
+            console.error("Error inserting sponsor tiers:", error);
 
             await connection.rollback();
             return false;
@@ -154,10 +154,91 @@ async function fetchSponsors() {
     });
 }
 
+async function updateSponsorTier({ oldName, newName, newAmount }) {
+    return await withOracleDB(async (connection) => {
+        const updates = [];
+        const params = { oldName };
+
+        if (newName) {
+            updates.push(`tier_level = :newName`);
+            params.newName = newName;
+        }
+
+        if (newAmount !== undefined && newAmount !== null) {
+            updates.push(`amount_contributed = :newAmount`);
+            params.newAmount = newAmount;
+        }
+
+        if (updates.length === 0) {
+            console.log("No fields to update for sponsor tier.");
+            return false;
+        }
+
+        const query = `
+            UPDATE Sponsor_Tier
+            SET ${updates.join(', ')}
+            WHERE tier_level = :oldName
+        `;
+
+        const result = await connection.execute(query, params, { autoCommit: true });
+        return result.rowsAffected && result.rowsAffected > 0;
+    }).catch((err) => {
+        console.error("Error updating sponsor tier:", err);
+        return false;
+    });
+}
+
+
+
+async function updateSponsor({ oldSponsorName, newSponsorName, newTierLevel, newPointOfContact }) {
+    return await withOracleDB(async (connection) => {
+        const updates = [];
+        const params = { oldSponsorName };
+
+        if (newSponsorName) {
+            updates.push(`sponsor_name = :newSponsorName`);
+            params.newSponsorName = newSponsorName;
+        }
+
+        if (newTierLevel) {
+            updates.push(`tier_level = :newTierLevel`);
+            params.newTierLevel = newTierLevel;
+        }
+
+        if (newPointOfContact) {
+            updates.push(`point_of_contact = :newPointOfContact`);
+            params.newPointOfContact = newPointOfContact;
+        }
+
+        if (updates.length === 0) {
+            console.log("No fields to update.");
+            return false;
+        }
+
+        const query = `
+            UPDATE Sponsor
+            SET ${updates.join(', ')}
+            WHERE sponsor_name = :oldSponsorName
+        `;
+
+        const result = await connection.execute(query, params, { autoCommit: true });
+        return result.rowsAffected && result.rowsAffected > 0;
+    }).catch((err) => {
+        console.error("Error updating sponsor:", err);
+        return false;
+    });
+}
+
 module.exports = {
     initiateSponsorTables,
     insertSponsorTier,
     insertSponsor,
+
     fetchSponsorTiers,
-    fetchSponsors
+    fetchSponsors,
+
+    updateSponsorTier,
+    updateSponsor,
+
+
 }
