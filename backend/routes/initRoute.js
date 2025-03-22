@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { initializeAllTables } = require('../services/dbInitService');
+const { initializeAllTables } = require('../services/entities/initService');
 
 
 router.post('/initialize-all', async (req, res) => {
