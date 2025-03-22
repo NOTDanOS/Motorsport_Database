@@ -1,4 +1,4 @@
-const withOracleDB = require("./utils/oracleHelper");
+const {withOracleDB} = require("./utils/oracleHelper");
 
 const sponsorService = require('./services/entities/sponsorService');
 const teamService = require("./services/entities/teamService");
