@@ -1,10 +1,10 @@
-const { initiateEngineerTables } = require('./entities/engineerService');
-const { initiateSponsorTables } = require('./entities/sponsorService');
-const { initiateTeamTables } = require('./entities/teamService');
-const { initiateDriverTables } = require('./entities/driverService');
-const { initiateRacingSeriesTables } = require('./entities/racingSeriesService');
-const { initiateVehicleTables } = require('./entities/vehicleService');
-const { initiateFundsTable } = require('./relations/fundsService');
+const { initiateEngineerTables } = require('./engineerService');
+const { initiateSponsorTables } = require('./sponsorService');
+const { initiateTeamTables } = require('./teamService');
+const { initiateDriverTables } = require('./driverService');
+const { initiateRacingTables } = require('./racingSeriesService');
+const { initiateVehicleTables } = require('./vehicleService');
+const { initiateFundsTable } = require('../relationships/fundsService');
 
 async function initializeAllTables() {
     try {
@@ -15,7 +15,7 @@ async function initializeAllTables() {
         const sponsorTablesResult = await initiateSponsorTables();
         const teamTablesResult = await initiateTeamTables();
         const driverTablesResult = await initiateDriverTables();
-        const racingSeriesTablesResult = await initiateRacingSeriesTables();
+        const racingSeriesTablesResult = await initiateRacingTables();
         const vehicleTablesResult = await initiateVehicleTables();
         
 
