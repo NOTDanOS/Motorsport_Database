@@ -1,6 +1,11 @@
 import Dropdown from "./Dropdown";
 
-export default function FormField({ field, value, onChange }) {
+export default function FormField({
+  field,
+  value,
+  onChange,
+  disabled = false,
+}) {
   const getFieldInput = () => {
     switch (field.type.toLowerCase()) {
       case "int":
@@ -10,9 +15,10 @@ export default function FormField({ field, value, onChange }) {
             id={field.name}
             value={value}
             onChange={(e) => onChange(e.target.value)}
-            className="w-full p-2 border rounded-md bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600"
+            className="w-full p-2 border rounded-md bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 disabled:bg-gray-100 disabled:text-gray-500"
             placeholder={`Enter ${field.name}`}
             required={!field.nullable}
+            disabled={disabled}
           />
         );
 
@@ -23,8 +29,9 @@ export default function FormField({ field, value, onChange }) {
             id={field.name}
             value={value}
             onChange={(e) => onChange(e.target.value)}
-            className="w-full p-2 border rounded-md bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600"
+            className="w-full p-2 border rounded-md bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 disabled:bg-gray-100 disabled:text-gray-500"
             required={!field.nullable}
+            disabled={disabled}
           />
         );
 
@@ -36,6 +43,7 @@ export default function FormField({ field, value, onChange }) {
             value={value}
             onChange={onChange}
             required={!field.nullable}
+            disabled={disabled}
           />
         );
 
@@ -47,10 +55,11 @@ export default function FormField({ field, value, onChange }) {
             id={field.name}
             value={value}
             onChange={(e) => onChange(e.target.value)}
-            className="w-full p-2 border rounded-md bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600"
+            className="w-full p-2 border rounded-md bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 disabled:bg-gray-100 disabled:text-gray-500"
             placeholder={`Enter ${field.name}`}
             maxLength={field.maxLength || 100}
             required={!field.nullable}
+            disabled={disabled}
           />
         );
     }
@@ -60,6 +69,7 @@ export default function FormField({ field, value, onChange }) {
     <div>
       <label htmlFor={field.name} className="block text-sm font-medium mb-1">
         {field.label || field.name} {field.nullable ? "" : "*"}
+        {disabled && field.primaryKey && " (Primary Key - Cannot Change)"}
       </label>
       {getFieldInput()}
       {field.description && (

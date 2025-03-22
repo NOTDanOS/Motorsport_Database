@@ -49,7 +49,7 @@ export default function InsertPage() {
 
       switch (selectedTable) {
         case "Sponsor_Tier":
-          endpoint = "/api/insert-sponsor-tier";
+          endpoint = "/api/sponsers/insert-tier";
           payload = {
             tierLevel: formData.tier_level,
             amountContributed: parseInt(formData.amount_contributed),
@@ -57,7 +57,7 @@ export default function InsertPage() {
           break;
 
         case "Sponsor":
-          endpoint = "/api/insert-sponsor";
+          endpoint = "/api/sponsors/insert";
           payload = {
             sponsorName: formData.sponsor_name,
             tierLevel: formData.tier_level || null,

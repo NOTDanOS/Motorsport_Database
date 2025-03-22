@@ -7,6 +7,7 @@ export const tableConfigs = {
         maxLength: 50,
         label: "Tier Level",
         nullable: false,
+        primaryKey: true,
         description: "Sponsorship tier level (Primary Key)",
       },
       {
@@ -28,6 +29,7 @@ export const tableConfigs = {
         maxLength: 50,
         label: "Sponsor Name",
         nullable: false,
+        primaryKey: true,
         description: "Name of the sponsor",
       },
       {
@@ -57,6 +59,7 @@ export const tableConfigs = {
         maxLength: 100,
         label: "Team Principal Name",
         nullable: false,
+        primaryKey: true,
         description: "Name of the team principal (Primary Key)",
       },
       {

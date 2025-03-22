@@ -16,6 +16,7 @@ async function testOracleConnection() {
     return await withOracleDB(async (connection) => {
         return true;
     }).catch(() => {
+    }).catch(() => {
         return false;
     });
 }

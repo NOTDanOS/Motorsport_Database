@@ -9,10 +9,10 @@ export default function Dropdown({
   onChange,
   className = "",
   required = false,
+  disabled = false,
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
-
 
   useEffect(() => {
     function handleClickOutside(event) {
@@ -36,31 +36,37 @@ export default function Dropdown({
     <div className="relative w-full" ref={dropdownRef}>
       <button
         type="button"
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={() => !disabled && setIsOpen(!isOpen)}
         className={`w-full p-2 border rounded-md bg-white dark:bg-gray-700 border-gray-300 
-        dark:border-gray-600 text-left flex justify-between items-center ${className}`}
+        dark:border-gray-600 text-left flex justify-between items-center 
+        ${
+          disabled ? "bg-gray-100 text-gray-500 cursor-not-allowed" : ""
+        } ${className}`}
         aria-haspopup="listbox"
         aria-expanded={isOpen}
+        disabled={disabled}
       >
         <span className={value ? "" : "text-gray-400"}>{value || label}</span>
-        <svg
-          className="w-2.5 h-2.5 ms-3"
-          aria-hidden="true"
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 10 6"
-        >
-          <path
-            stroke="currentColor"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            d="m1 1 4 4 4-4"
-          />
-        </svg>
+        {!disabled && (
+          <svg
+            className="w-2.5 h-2.5 ms-3"
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 10 6"
+          >
+            <path
+              stroke="currentColor"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="m1 1 4 4 4-4"
+            />
+          </svg>
+        )}
       </button>
 
-      {isOpen && (
+      {isOpen && !disabled && (
         <div
           className="absolute z-10 mt-1 w-full bg-white divide-y divide-gray-100 rounded-lg shadow-sm 
           dark:bg-gray-700 max-h-60 overflow-auto"
@@ -95,6 +101,7 @@ export default function Dropdown({
           value={value || ""}
           onChange={() => {}}
           required
+          disabled={disabled}
         />
       )}
     </div>
