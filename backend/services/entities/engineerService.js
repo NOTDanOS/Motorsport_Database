@@ -121,8 +121,8 @@ async function fetchEngineeringAssignment() {
         return result.rows.map(row => ({
             name: row[0],
             team_name: row[1],
-            department: row[2],
-            HQ_address: row[3]
+            proficiency: row[2],
+            years_experience: row[3]
         }));
     });
 }
@@ -177,7 +177,7 @@ async function updateEngineeringAssignment({ oldName, newName, newProficiency, n
 async function updateEngineeringTeam({ oldTeamName, newTeamName, newDept, newHQ }) {
     return await withOracleDB(async (connection) => {
         const updates = [];
-        const params = {oldName};
+        const params = {oldTeamName};
 
         if (newTeamName) {
             updates.push(`team_name = :newTeamName`);
