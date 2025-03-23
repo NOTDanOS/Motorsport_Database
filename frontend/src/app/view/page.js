@@ -15,11 +15,11 @@ export default function ViewPage() {
   const [confirmDelete, setConfirmDelete] = useState(null);
 
   const availableTables = [
-    "Sponsor", 
-    "Sponsor_Tier", 
-    // "Team_Principal", 
-    "Engineering_Team", 
-    "Engineer_Assignment"
+    "Sponsor",
+    "Sponsor_Tier",
+    // "Team_Principal",
+    "Engineering_Team",
+    "Engineer_Assignment",
   ];
 
   const handleTableChange = async (tableName) => {
@@ -48,7 +48,7 @@ export default function ViewPage() {
           endpoint = "/api/get-teams";
           break;
         case "Engineering_Team":
-          endpoint="/api/engineers/teams"
+          endpoint = "/api/engineers/teams";
           break;
         case "Engineer_Assignment":
           endpoint = "/api/engineers/assignments";
@@ -109,37 +109,49 @@ export default function ViewPage() {
       let endpoint;
       let payload = {};
 
-      switch (selectedTable) {
-        case "Sponsor_Tier":
-          endpoint = "/api/sponsors/update-tier";
-          payload = {
-            oldName: editingRecord.tier_level,
-            newName: formData.tier_level,
-            newAmount: parseInt(formData.amount_contributed),
-          };
-          break;
 
-        case "Sponsor":
-          endpoint = "/api/sponsors/update";
-          payload = {
-            oldSponsorName: editingRecord.sponsor_name,
-            newSponsorName: formData.sponsor_name,
-            newTierLevel: formData.tier_level,
-            newPointOfContact: formData.point_of_contact,
-          };
-          break;
+      if (tableConfigs[selectedTable]?.updateEndpoint) {
+        endpoint = `/api${tableConfigs[selectedTable].updateEndpoint}`;
 
-        case "Team_Principal":
-          endpoint = "/api/update-team";
-          payload = {
-            oldPrincipalName: editingRecord.team_principal,
-            newPrincipalName: formData.team_principal,
-            newTeamName: formData.team_name,
-          };
-          break;
+        if (tableConfigs[selectedTable].updatePayloadTransform) {
+          payload = tableConfigs[selectedTable].updatePayloadTransform(
+            formData,
+            editingRecord
+          );
+        }
+      } else {
+        switch (selectedTable) {
+          case "Sponsor_Tier":
+            endpoint = "/api/sponsors/update-tier";
+            payload = {
+              oldName: editingRecord.tier_level,
+              newName: formData.tier_level,
+              newAmount: parseInt(formData.amount_contributed),
+            };
+            break;
 
-        default:
-          throw new Error("Unsupported table type for update");
+          case "Sponsor":
+            endpoint = "/api/sponsors/update";
+            payload = {
+              oldSponsorName: editingRecord.sponsor_name,
+              newSponsorName: formData.sponsor_name,
+              newTierLevel: formData.tier_level,
+              newPointOfContact: formData.point_of_contact,
+            };
+            break;
+
+          case "Team_Principal":
+            endpoint = "/api/update-team";
+            payload = {
+              oldPrincipalName: editingRecord.team_principal,
+              newPrincipalName: formData.team_principal,
+              newTeamName: formData.team_name,
+            };
+            break;
+
+          default:
+            throw new Error("Unsupported table type for update");
+        }
       }
 
       const response = await fetch(endpoint, {

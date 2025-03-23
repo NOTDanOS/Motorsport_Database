@@ -82,8 +82,8 @@ export const tableConfigs = {
     updatePayloadTransform: (data, original) => ({
       oldTeamName: original.team_name,
       newTeamName: data.team_name,
-      newDepartment: data.department,
-      newAddress: data.HQ_address,
+      newDept: data.department, 
+      newHQ: data.HQ_address, 
     }),
   },
 
