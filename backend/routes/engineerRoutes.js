@@ -1,6 +1,5 @@
 const express = require('express');
 const engineerService = require('../services/entities/engineerService');
-const sponsorService = require("../services/entities/sponsorService");
 
 const router = express.Router();
 
@@ -9,18 +8,18 @@ router.post("/initiate", async (req, res) => {
         const result = await engineerService.initiateEngineerTables();
         return res.json({ success: result });
     } catch (err) {
-        return res.status(500).json({ success: false, message: "Failed to initiate car tables", error: err.message });
+        return res.status(500).json({ success: false, message: "Failed to initiate engineer tables", error: err.message });
     }
 });
 
 router.post("/insert-team", async (req, res) => {
-    const { teamName, dept, HQ, yearsLed } = req.body;
+    const { teamName, dept, HQ } = req.body;
     if (!teamName) {
         return res.status(400).json({ success: false, message: "Missing a team name" });
     }
 
     try {
-        const result = await engineerService.insertEngineeringTeam(teamName, dept, HQ, yearsLed);
+        const result = await engineerService.insertEngineeringTeam(teamName, dept, HQ);
         return res.json({ success: result });
     } catch (err) {
         return res.status(500).json({ success: false, message: "Failed to insert engineering team", error: err.message });
@@ -30,7 +29,9 @@ router.post("/insert-team", async (req, res) => {
 router.post("/insert-assignment", async (req, res) => {
     const { name, proficiency, years_experience, eng_team_id } = req.body;
 
-    // no if statement since we didn't restrict this, but maybe we should???
+    if (!name) {
+        return res.status(400).json({ success: false, message: "Missing engineer name" });
+    }
 
     try {
         const result = await engineerService.insertEngineeringAssignment(name, proficiency,
@@ -53,8 +54,12 @@ router.get("/assignments", async (req, res) => {
 router.post("/update-assignment", async (req, res) => {
     const { oldName, newName, newProficiency, newYearsExperience, newTeamId } = req.body;
 
-    if (!newName && newProficiency && newYearsExperience && newTeamId === undefined) {
-        return res.status(400).json({ success: false, message: "Double check your json file." });
+    if (!oldName) {
+        return res.status(400).json({ success: false, message: "Missing original engineer name (oldName)" });
+    }
+
+    if (!newName && !newProficiency && newYearsExperience === undefined && newTeamId === undefined) {
+        return res.status(400).json({ success: false, message: "No fields provided to update" });
     }
 
     try {
@@ -70,7 +75,7 @@ router.post("/update-assignment", async (req, res) => {
     } catch (err) {
         return res.status(500).json({
             success: false,
-            message: "Failed to update engineering team",
+            message: "Failed to update engineering assignment",
             error: err.message
         });
     }
@@ -86,18 +91,22 @@ router.get("/teams", async (req, res) => {
 });
 
 router.post("/update-team", async (req, res) => {
-    const { oldTeamName, newTeamName, newDepartment, newAddress } = req.body;
+    const { oldTeamName, newTeamName, newDept, newHQ } = req.body;
 
-    if (!newTeamName && newDepartment && newAddress === undefined) {
-        return res.status(400).json({ success: false, message: "Double check your json file." });
+    if (!oldTeamName) {
+        return res.status(400).json({ success: false, message: "Missing original team name (oldTeamName)" });
+    }
+
+    if (!newTeamName && !newDept && !newHQ) {
+        return res.status(400).json({ success: false, message: "No fields provided to update" });
     }
 
     try {
         const result = await engineerService.updateEngineeringTeam({
             oldTeamName,
             newTeamName,
-            newDepartment,
-            newAddress
+            newDept,
+            newHQ
         });
 
         return res.json({ success: result });
