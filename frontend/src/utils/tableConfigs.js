@@ -20,7 +20,6 @@ export const tableConfigs = {
     ],
   },
 
-  // Using dropdown for sponsor tiers
   Sponsor: {
     fields: [
       {
