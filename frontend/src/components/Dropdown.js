@@ -4,15 +4,51 @@ import { useState, useRef, useEffect } from "react";
 
 export default function Dropdown({
   label,
-  options,
+  options = [],
   value,
   onChange,
-  className = "",
   required = false,
   disabled = false,
 }) {
   const [isOpen, setIsOpen] = useState(false);
+  const [selectedOption, setSelectedOption] = useState(null);
+  const [dropdownOptions, setDropdownOptions] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
   const dropdownRef = useRef(null);
+
+
+  useEffect(() => {
+    const loadOptions = async () => {
+      if (typeof options === "function") {
+        setIsLoading(true);
+        try {
+          const loadedOptions = await options();
+          setDropdownOptions(Array.isArray(loadedOptions) ? loadedOptions : []);
+        } catch (error) {
+          console.error("Error loading dropdown options:", error);
+          setDropdownOptions([]);
+        } finally {
+          setIsLoading(false);
+        }
+      } else {
+        setDropdownOptions(Array.isArray(options) ? options : []);
+      }
+    };
+
+    loadOptions();
+  }, [options]);
+
+
+  useEffect(() => {
+    if (value && dropdownOptions.length > 0) {
+      const option = dropdownOptions.find(
+        (opt) => opt.value === value || opt === value
+      );
+      setSelectedOption(option || null);
+    } else {
+      setSelectedOption(null);
+    }
+  }, [value, dropdownOptions]);
 
   useEffect(() => {
     function handleClickOutside(event) {
@@ -27,8 +63,15 @@ export default function Dropdown({
     };
   }, [dropdownRef]);
 
-  const handleOptionClick = (option) => {
-    onChange(option);
+  const toggleDropdown = () => {
+    if (!disabled) {
+      setIsOpen(!isOpen);
+    }
+  };
+
+  const handleSelect = (option) => {
+    setSelectedOption(option);
+    onChange(typeof option === "object" ? option.value : option);
     setIsOpen(false);
   };
 
@@ -36,74 +79,55 @@ export default function Dropdown({
     <div className="relative w-full" ref={dropdownRef}>
       <button
         type="button"
-        onClick={() => !disabled && setIsOpen(!isOpen)}
-        className={`w-full p-2 border rounded-md bg-white dark:bg-gray-700 border-gray-300 
-        dark:border-gray-600 text-left flex justify-between items-center 
-        ${
-          disabled ? "bg-gray-100 text-gray-500 cursor-not-allowed" : ""
-        } ${className}`}
-        aria-haspopup="listbox"
-        aria-expanded={isOpen}
+        className={`flex justify-between items-center w-full p-2 border rounded-md bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 ${
+          disabled ? "bg-gray-100 text-gray-500" : ""
+        }`}
+        onClick={toggleDropdown}
         disabled={disabled}
       >
-        <span className={value ? "" : "text-gray-400"}>{value || label}</span>
-        {!disabled && (
-          <svg
-            className="w-2.5 h-2.5 ms-3"
-            aria-hidden="true"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 10 6"
-          >
-            <path
-              stroke="currentColor"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="m1 1 4 4 4-4"
-            />
-          </svg>
-        )}
+        <span>
+          {isLoading
+            ? "Loading options..."
+            : selectedOption
+            ? typeof selectedOption === "object"
+              ? selectedOption.label
+              : selectedOption
+            : label}
+        </span>
+        <span>▼</span>
       </button>
 
-      {isOpen && !disabled && (
-        <div
-          className="absolute z-10 mt-1 w-full bg-white divide-y divide-gray-100 rounded-lg shadow-sm 
-          dark:bg-gray-700 max-h-60 overflow-auto"
-        >
-          <ul
-            className="py-2 text-sm text-gray-700 dark:text-gray-200"
-            role="listbox"
-          >
-            {options.map((option) => (
-              <li key={option} className="cursor-pointer">
-                <button
-                  type="button"
-                  className="w-full text-left block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-                  onClick={() => handleOptionClick(option)}
-                  role="option"
-                  aria-selected={value === option}
-                >
-                  {option}
-                </button>
-              </li>
-            ))}
-          </ul>
+      {isOpen && (
+        <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-md shadow-lg max-h-60 overflow-auto">
+          {isLoading ? (
+            <div className="p-2 text-center text-gray-500">
+              Loading options...
+            </div>
+          ) : dropdownOptions.length > 0 ? (
+            dropdownOptions.map((option, index) => (
+              <div
+                key={index}
+                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
+                onClick={() => handleSelect(option)}
+              >
+                {typeof option === "object" ? option.label : option}
+              </div>
+            ))
+          ) : (
+            <div className="p-2 text-center text-gray-500">
+              No options available
+            </div>
+          )}
         </div>
       )}
 
-      {required && (
-        <input
-          type="text"
-          tabIndex={-1}
-          autoComplete="off"
-          style={{ opacity: 0, height: 0, position: "absolute" }}
-          value={value || ""}
-          onChange={() => {}}
-          required
-          disabled={disabled}
-        />
-      )}
+{/* I hid this form sub */}
+      <input
+        type="hidden"
+        name={label}
+        value={value || ""}
+        required={required}
+      />
     </div>
   );
 }

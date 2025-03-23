@@ -36,13 +36,18 @@ export default function FormField({
         );
 
       case "dropdown":
+      case "select":
         return (
           <Dropdown
-            label={`Select ${field.label}`}
-            options={field.options || []}
+            label={`Select ${field.label || field.name}`}
+            options={
+              typeof field.options === "function"
+                ? field.options
+                : field.options || []
+            }
             value={value}
             onChange={onChange}
-            required={!field.nullable}
+            required={!field.nullable && field.required}
             disabled={disabled}
           />
         );

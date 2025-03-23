@@ -133,7 +133,7 @@ async function updateEngineeringAssignment({ oldName, newName, newProficiency, n
         const params = { oldName };
 
         if (newName) {
-            updates.push(`tier_level = :newName`);
+            updates.push(`name = :newName`);
             params.newName = newName;
         }
 
@@ -159,7 +159,7 @@ async function updateEngineeringAssignment({ oldName, newName, newProficiency, n
         }
 
         const query = `
-            UPDATE Engineering_Assignment
+            UPDATE Engineer_Assignment
             SET ${updates.join(', ')}
             WHERE name = :oldName
         `;

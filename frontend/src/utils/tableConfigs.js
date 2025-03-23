@@ -94,10 +94,10 @@ export const tableConfigs = {
       { name: "years_experience", label: "Years Experience", type: "number" },
       {
         name: "team_name",
-        label: "Team",
-        type: "select",
+        label: "Select Team",
+        type: "dropdown",
         options: async () => {
-          const res = await fetch("api/engineers/teams");
+          const res = await fetch("/api/engineers/teams");
           const data = await res.json();
           return data.success
             ? data.data.map((team) => ({
@@ -109,5 +109,12 @@ export const tableConfigs = {
       },
     ],
     updateEndpoint: "/engineers/update-assignment",
+    updatePayloadTransform: (data, original) => ({
+      oldName: original.name,
+      newName: data.name,
+      newProficiency: data.proficiency,
+      newYearsExperience: Number(data.years_experience),
+      newTeamId: data.team_name,
+    }),
   },
 };
