@@ -74,6 +74,25 @@ export default function InsertPage() {
           };
           break;
 
+        case "Engineering_Team":
+          endpoint = "/api/engineers/insert-team";
+          payload = {
+            teamName: formData.team_name,
+            dept: formData.department,
+            HQ: formData.HQ_address,
+          };
+          break;
+
+        case "Engineer_Assignment":
+          endpoint = "/api/engineers/insert-assignment";
+          payload = {
+            name: formData.name,
+            proficiency: formData.proficiency,
+            years_experience: Number(formData.years_experience),
+            eng_team_id: formData.team_name,
+          };
+          break;
+
         default:
           throw new Error("Unsupported table type");
       }

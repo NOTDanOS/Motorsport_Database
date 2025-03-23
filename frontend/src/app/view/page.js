@@ -14,7 +14,13 @@ export default function ViewPage() {
   const [editingRecord, setEditingRecord] = useState(null);
   const [confirmDelete, setConfirmDelete] = useState(null);
 
-  const availableTables = ["Sponsor", "Sponsor_Tier", "Team_Principal"];
+  const availableTables = [
+    "Sponsor", 
+    "Sponsor_Tier", 
+    // "Team_Principal", 
+    "Engineering_Team", 
+    "Engineer_Assignment"
+  ];
 
   const handleTableChange = async (tableName) => {
     setSelectedTable(tableName);
@@ -40,6 +46,12 @@ export default function ViewPage() {
           break;
         case "Team_Principal":
           endpoint = "/api/get-teams";
+          break;
+        case "Engineering_Team":
+          endpoint="/api/engineers/teams"
+          break;
+        case "Engineer_Assignment":
+          endpoint = "/api/engineers/assignments";
           break;
         default:
           throw new Error("No endpoint available for this table");
