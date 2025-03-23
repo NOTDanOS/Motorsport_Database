@@ -49,7 +49,7 @@ export default function InsertPage() {
 
       switch (selectedTable) {
         case "Sponsor_Tier":
-          endpoint = "/api/sponsers/insert-tier";
+          endpoint = "/api/sponsors/insert-tier";
           payload = {
             tierLevel: formData.tier_level,
             amountContributed: parseInt(formData.amount_contributed),
