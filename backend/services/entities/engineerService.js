@@ -97,14 +97,15 @@ VALUES (:name, :proficiency, :years_experience, :eng_team_id)`,
 async function fetchEngineeringTeams() {
     return await withOracleDB(async (connection) => {
         const result = await connection.execute(`
-            SELECT team_name, department, HQ_address
+            SELECT eng_team_id, team_name, department, HQ_address
             FROM Engineering_Team
         `);
 
         return result.rows.map(row => ({
-            team_name: row[0],
-            department: row[1],
-            HQ_address: row[2]
+            eng_team_id: row[0],
+            team_name: row[1],
+            department: row[2],
+            HQ_address: row[3]
         }));
     });
 }
@@ -115,14 +116,101 @@ async function fetchEngineeringAssignment() {
             SELECT ea.name, et.team_name, ea.proficiency, ea.years_experience
             FROM Engineer_Assignment ea
             JOIN Engineering_Team et ON ea.eng_team_id = et.eng_team_id
-
         `);
 
         return result.rows.map(row => ({
-            team_name: row[0],
-            department: row[1],
-            HQ_address: row[2]
+            name: row[0],
+            team_name: row[1],
+            department: row[2],
+            HQ_address: row[3]
         }));
+    });
+}
+
+async function updateEngineeringAssignment({ oldName, newName, newProficiency, newYearsExperience, newTeamId }) {
+    return await withOracleDB(async (connection) => {
+        const updates = [];
+        const params = { oldName };
+
+        if (newName) {
+            updates.push(`tier_level = :newName`);
+            params.newName = newName;
+        }
+
+        if (newProficiency) {
+            updates.push(`proficiency = :newProficiency`);
+            params.newProficiency = newProficiency;
+        }
+
+        if (newYearsExperience) {
+            updates.push(`years_experience = :newYearsExperience`);
+            params.newYearsExperience = newYearsExperience;
+        }
+
+        if (newTeamId) {
+            updates.push(`eng_team_id = :newTeamId`);
+            params.newTeamId = newTeamId;
+        }
+
+
+        if (updates.length === 0) {
+            console.log("No fields to update for engineering assignment.");
+            return false;
+        }
+
+        const query = `
+            UPDATE Engineering_Assignment
+            SET ${updates.join(', ')}
+            WHERE name = :oldName
+        `;
+
+        const result = await connection.execute(query, params, { autoCommit: true });
+        return result.rowsAffected && result.rowsAffected > 0;
+    }).catch((err) => {
+        console.error("Error updating engineering assignment:", err);
+        return false;
+    });
+}
+
+
+
+async function updateEngineeringTeam({ oldTeamName, newTeamName, newDept, newHQ }) {
+    return await withOracleDB(async (connection) => {
+        const updates = [];
+        const params = {oldName};
+
+        if (newTeamName) {
+            updates.push(`team_name = :newTeamName`);
+            params.newTeamName = newTeamName;
+        }
+
+        if (newDept) {
+            updates.push(`department = :newDept`);
+            params.newDept = newDept;
+        }
+
+        if (newHQ) {
+            updates.push(`HQ_address = :newHQ`);
+            params.newHQ = newHQ;
+        }
+
+
+        if (updates.length === 0) {
+            console.log("No fields to update for engineering teams.");
+            return false;
+        }
+
+        const query = `
+            UPDATE Engineering_Team
+            SET ${updates.join(', ')}
+            WHERE team_name = :oldTeamName
+        `;
+
+        const result = await connection.execute(query, params, {autoCommit: true});
+        return result.rowsAffected && result.rowsAffected > 0;
+    }).catch((err) => {
+        console.error("Error updating engineering teams:", err);
+        return false;
     });
 }
 
@@ -132,5 +220,7 @@ module.exports = {
     insertEngineeringTeam,
     insertEngineeringAssignment,
     fetchEngineeringTeams,
-    fetchEngineeringAssignment
+    fetchEngineeringAssignment,
+    updateEngineeringAssignment,
+    updateEngineeringTeam
 }

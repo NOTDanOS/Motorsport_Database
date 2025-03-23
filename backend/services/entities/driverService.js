@@ -1,8 +1,6 @@
 const {withOracleDB} = require("../../utils/oracleHelper");
 const {tableExists} = require("../../utils/tableExists");
 
-// DRIVER stuff
-
 async function initiateDriverTables() {
     return await withOracleDB(async (connection) => {
         try {
@@ -47,12 +45,12 @@ async function initiateDriverTables() {
 }
 
 
-async function insertDriver(name, country, number) {
+async function insertDriver(name, country, driver_number) {
     return await withOracleDB(async (connection) => {
         try {
             await connection.execute(
-                `INSERT INTO Driver (driver_name, driver_number) VALUES (:name, :number)`,
-                { name, number }
+                `INSERT INTO Driver (driver_name, driver_number) VALUES (:name, :driver_number)`,
+                { name, driver_number }
             );
 
             const result = await connection.execute(
