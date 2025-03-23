@@ -1,5 +1,6 @@
 const express = require('express');
 const driver_Service = require('../services/entities/driverService');
+const sponsorService = require("../services/entities/sponsorService");
 
 const router = express.Router();
 
@@ -14,13 +15,13 @@ router.post("/initiate", async (req, res) => {
 });
 
 router.post("/insert", async (req, res) => {
-    const { name, nationality, driver_number } = req.body;
-    if (!name || !nationality || !driver_number) {
+    const { name, country, driver_number } = req.body;
+    if (!name || !country || !driver_number) {
         return res.status(400).json({ success: false, message: "Missing required fields" });
     }
 
     try {
-        const result = await driver_Service.insertDriver(name, nationality, driver_number);
+        const result = await driver_Service.insertDriver(name, country, driver_number);
         return res.json({ success: result });
     } catch (err) {
         return res.status(500).json({ success: false, message: "Failed to insert your driver",
