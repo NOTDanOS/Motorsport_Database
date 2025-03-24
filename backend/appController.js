@@ -10,6 +10,7 @@ const racingSeriesRoutes = require('./routes/racingSeriesRoutes');
 const driverRoutes = require('./routes/driverRoutes');
 const engineerRoutes = require('./routes/engineerRoutes');
 const vehicleRoutes = require('./routes/vehicleRoutes');
+const aggregateRoutes = require('./routes/aggregateRoutes');
 
 // ----------------------------------------------------------
 // API endpoints
@@ -31,5 +32,6 @@ router.use('/vehicles', vehicleRoutes);
 router.use('/engineers', engineerRoutes);
 /*router.use('/funds', fundRoutes);*/
 router.use('/api/db', dbInitRoutes);
+router.use('/aggregate', aggregateRoutes);
 
 module.exports = router;
