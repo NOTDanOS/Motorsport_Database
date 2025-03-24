@@ -1,32 +1,32 @@
 const express = require("express");
 const router = express.Router();
 const {
-    vehicleCountByTeam,
-    teamsWithMultipleVehicles,
-    sponsorsFundingAllTeams
+    engineersPerTeam,
+    teamsWithMultipleEngineers,
+    sponsorsWithAllTiers
 } = require("../services/queries/aggregateServices");
 
-router.get("/vehicle-count-by-team", async (req, res) => {
+router.get("/engineers-per-team", async (req, res) => {
     try {
-        const data = await vehicleCountByTeam();
+        const data = await engineersPerTeam();
         res.json({ success: true, data });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }
 });
 
-router.get("/teams-multiple-vehicles", async (req, res) => {
+router.get("/teams-with-multiple-engineers", async (req, res) => {
     try {
-        const data = await teamsWithMultipleVehicles();
+        const data = await teamsWithMultipleEngineers();
         res.json({ success: true, data });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }
 });
 
-router.get("/sponsors-all-teams", async (req, res) => {
+router.get("/sponsors-with-all-tiers", async (req, res) => {
     try {
-        const data = await sponsorsFundingAllTeams();
+        const data = await sponsorsWithAllTiers();
         res.json({ success: true, data });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });

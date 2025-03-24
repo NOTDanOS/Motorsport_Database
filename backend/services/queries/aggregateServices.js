@@ -1,42 +1,42 @@
 const { withOracleDB } = require("../../utils/oracleHelper");
 
-async function vehicleCountByTeam() {
+async function engineersPerTeam() {
     return await withOracleDB(async (connection) => {
         const result = await connection.execute(`
-            SELECT T.team_name, COUNT(V.vehicle_id) AS num_vehicles
-            FROM Team T
-            JOIN Vehicle V on T.team_id = V.team_id
-            GROUP BY T.team_name
+            SELECT ET.team_name, COUNT(EA.eng_id) AS num_engineers
+            FROM Engineering_Team ET
+            JOIN Engineering_Assignment EA ON ET.eng_team_id = EA.eng_team_id
+            GROUP BY ET.team_name
             `);
         return result.rows;
     });
 }
 
-async function teamsWithMultipleVehicles() {
+async function teamsWithMultipleEngineers() {
     return await withOracleDB(async (connection) => {
         const result = await connection.execute(`
-            SELECT T.team_name, COUNT(V.vehicle_id) AS num_vehicles
-            FROM Team T
-            JOIN Vehicle V on T.team_id = V.team_id
-            GROUP BY T.team_name
-            HAVING COUNT(V.vehicle_id) > 1
+            SELECT ET.team_name, COUNT(EA.eng_id) AS num_engineers
+            FROM Engineering_Team ET
+            JOIN Engineering_Assignment EA ON ET.eng_team_id = EA.eng_team_id
+            GROUP BY ET.team_name
+            HAVING COUNT(EA.eng_id) > 1
             `);
         return result.rows;
     });
 }
 
-async function sponsorsFundingAllTeams() {
+async function sponsorsWithAllTiers() {
     return await withOracleDB(async (connection) => {
         const result = await connection.execute(`
             SELECT S.sponsor_name
-            FROM Sponsor s
+            FROM Sponsor S
             WHERE NOT EXISTS (
-                SELECT T.team_id
-                FROM Team T
+                SELECT ST.tier_level
+                FROM Sponsor_Tier ST
                 MINUS
-                SELECT F.team_id
-                FROM Funds F
-                WHERE F.sponsor_id = S.sponsor_id
+                SELECT S2.tier_level
+                FROM Sponsor S2
+                WHERE S2.sponsor_id = S.sponsor_id
             )
         `);
         return result.rows;
@@ -44,7 +44,7 @@ async function sponsorsFundingAllTeams() {
 }
 
 module.exports = {
-    vehicleCountByTeam,
-    teamsWithMultipleVehicles,
-    sponsorsFundingAllTeams
+    engineersPerTeam,
+    teamsWithMultipleEngineers,
+    sponsorsWithAllTiers
 };
