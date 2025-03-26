@@ -3,6 +3,13 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
+const navigation = [
+  { name: "Home", href: "/" },
+  { name: "Insert", href: "/insert" },
+  { name: "View", href: "/view" },
+  { name: "Aggregate", href: "/aggregate" },
+];
+
 export default function Navbar() {
   const pathname = usePathname();
 
@@ -16,22 +23,17 @@ export default function Navbar() {
             </Link>
           </div>
           <div className="flex items-center space-x-4">
-            <Link
-              href="/insert"
-              className={`px-3 py-2 rounded-md text-sm font-medium ${
-                pathname === "/insert" ? "bg-gray-900" : "hover:bg-gray-700"
-              }`}
-            >
-              Insert Data
-            </Link>
-            <Link
-              href="/view"
-              className={`px-3 py-2 rounded-md text-sm font-medium ${
-                pathname === "/view" ? "bg-gray-900" : "hover:bg-gray-700"
-              }`}
-            >
-              View Data
-            </Link>
+            {navigation.map((item) => (
+              <Link
+                key={item.name}
+                href={item.href}
+                className={`px-3 py-2 rounded-md text-sm font-medium ${
+                  pathname === item.href ? "bg-gray-900" : "hover:bg-gray-700"
+                }`}
+              >
+                {item.name}
+              </Link>
+            ))}
           </div>
         </div>
       </div>
