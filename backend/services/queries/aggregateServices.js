@@ -5,7 +5,7 @@ async function engineersPerTeam() {
         const result = await connection.execute(`
             SELECT ET.team_name, COUNT(EA.eng_id) AS num_engineers
             FROM Engineering_Team ET
-            JOIN Engineering_Assignment EA ON ET.eng_team_id = EA.eng_team_id
+            JOIN Engineer_Assignment EA ON ET.eng_team_id = EA.eng_team_id
             GROUP BY ET.team_name
             `);
         return result.rows;
@@ -17,7 +17,7 @@ async function teamsWithMultipleEngineers() {
         const result = await connection.execute(`
             SELECT ET.team_name, COUNT(EA.eng_id) AS num_engineers
             FROM Engineering_Team ET
-            JOIN Engineering_Assignment EA ON ET.eng_team_id = EA.eng_team_id
+            JOIN Engineer_Assignment EA ON ET.eng_team_id = EA.eng_team_id
             GROUP BY ET.team_name
             HAVING COUNT(EA.eng_id) > 1
             `);
