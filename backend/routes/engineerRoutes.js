@@ -119,4 +119,23 @@ router.post("/update-team", async (req, res) => {
     }
 });
 
+router.delete("/delete", async (req, res) => {
+    const { tableName, conditions, partial } = req.body;
+
+    try {
+        const deletion = await engineerService.deleteRows(
+            tableName,
+            conditions,
+            partial === true
+        );
+        return res.json({ success: true, deleted: deletion });
+    } catch (err) {
+        return res.status(500).json({
+            success: false,
+            message: "Failed to delete row(s)",
+            error: err.message
+        });
+    }
+});
+
 module.exports = router;
