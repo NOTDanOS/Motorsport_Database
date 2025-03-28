@@ -123,6 +123,7 @@ async function insertSponsor(sponsorName, tierLevel, pointOfContact) {
       );
 
       await connection.commit();
+      
 
       return result.rowsAffected > 0;
     } catch (error) {

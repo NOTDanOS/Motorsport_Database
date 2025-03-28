@@ -13,7 +13,6 @@ export default function AggregatePage() {
   const queryColumnHeaders = {
     "engineers-per-team": ["Team Name", "Engineer Count"],
     "teams-with-multiple-engineers": ["Team Name", "Engineer Count"],
-    "sponsors-with-all-tiers": ["Sponsor Name"],
   };
 
   const aggregateQueries = [
@@ -26,11 +25,6 @@ export default function AggregatePage() {
       id: "teams-with-multiple-engineers",
       name: "Teams With Multiple Engineers",
       description: "Shows teams that have more than one engineer assigned",
-    },
-    {
-      id: "sponsors-with-all-tiers",
-      name: "Sponsors With All Tiers",
-      description: "Shows sponsors that have participated in all tier levels",
     },
   ];
 
@@ -102,7 +96,6 @@ export default function AggregatePage() {
 
   const renderTableRows = () => {
     if (queryResults.length === 0) return null;
-
 
     const firstRow = queryResults[0];
     const isArrayData = Array.isArray(firstRow);

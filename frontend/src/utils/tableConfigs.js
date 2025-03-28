@@ -33,8 +33,7 @@ export const tableConfigs = {
       },
       {
         name: "tier_level",
-        type: "dropdown",
-        options: ["Bronze", "Silver", "Gold", "Platinum", "Diamond"],
+        type: "text", // I changed this daniel to a text field to demo the error, need to fix the error message later
         label: "Tier Level",
         nullable: true,
         description: "Foreign Key referencing Sponsor_Tier",
@@ -81,8 +80,8 @@ export const tableConfigs = {
     updatePayloadTransform: (data, original) => ({
       oldTeamName: original.team_name,
       newTeamName: data.team_name,
-      newDept: data.department, 
-      newHQ: data.HQ_address, 
+      newDept: data.department,
+      newHQ: data.HQ_address,
     }),
   },
 
