@@ -109,4 +109,38 @@ router.get("/", async (req, res) => {
     }
 });
 
+router.delete("/:sponsorId", async(req, res) => {
+    const { sponsorId } = req.params;
+
+    try {
+        const success = await sponsorService.deleteSponsorByID(parseInt(sponsorId));
+        
+        if (success) {
+            return res.status(200).json({ success: true, message: "Sponsor deleted successfully" });
+        } else {
+            return res.status(404).json({ success: false, message: "Sponsor not found" });
+        }
+    } catch (err) {
+        console.error("Error deleting sponsor:", err);
+        return res.status(500).json({ success: false, message: "Error deleting sponsor" });
+    }
+});
+
+router.delete("/tier/:tierLevel", async (req, res) => {
+    const { tierLevel } = req.params;
+
+    try {
+        const success = await sponsorService.deleteSponsorTierByName(tierLevel);
+
+        if (success) {
+            return res.status(200).json({ success: true, message: "Sponsor tier deleted successfully" });
+        } else {
+            return res.status(404).json({ success: false, message: "Sponsor tier not found" });
+        }
+    } catch (err) {
+        console.error("Error deleting sponsor tier:", err);
+        return res.status(500).json({ success: false, message: "Error deleting sponsor tier" });
+    }
+})
+
 module.exports = router;
