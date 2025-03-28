@@ -278,6 +278,10 @@ async function deleteRows(tableName, conditions = {}, partial = false) {
   });
 }
 
+async function name(params) {
+  
+}
+
 module.exports = {
   initiateEngineerTables,
   insertEngineeringTeam,

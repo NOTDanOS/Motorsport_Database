@@ -35,7 +35,7 @@ export default function ProjectionSelector({ tableName, onApplyProjection }) {
   return (
     <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-md border border-gray-200 dark:border-gray-600">
       <h3 className="text-lg font-medium mb-3">
-        Apply Projection (Select Fields)
+        Apply Projection
       </h3>
       <div className="space-y-2 mb-4">
         {availableFields.map((field) => (

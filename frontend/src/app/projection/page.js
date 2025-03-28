@@ -23,7 +23,7 @@ export default function ProjectionPage() {
     setMessage({ text: "", type: "" });
 
     try {
-      const endpoint = "/api/engineers/assignments/projection";
+      const endpoint = "/api/engineers/assignment-projection";
 
       const response = await fetch(endpoint, {
         method: "POST",
