@@ -110,16 +110,17 @@ async function fetchEngineeringAssignment() {
     return await withOracleDB(async (connection) => {
         try {
             const result = await connection.execute(`
-                SELECT ea.name, et.team_name, ea.proficiency, ea.years_experience
+                SELECT ea.eng_id, ea.name, et.team_name, ea.proficiency, ea.years_experience
                 FROM Engineer_Assignment ea
                 JOIN Engineering_Team et ON ea.eng_team_id = et.eng_team_id
             `);
 
             return result.rows.map(row => ({
-                name: row[0],
-                team_name: row[1],
-                proficiency: row[2],
-                years_experience: row[3]
+                end_id:row[0],
+                name: row[1],
+                team_name: row[2],
+                proficiency: row[3],
+                years_experience: row[4]
             }));
         } catch (error) {
             console.error("Error fetching engineering assignments:", error);

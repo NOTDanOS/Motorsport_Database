@@ -278,7 +278,7 @@ export default function ViewPage() {
           payload = {
             tableName: "Engineering_Team",
             conditions: {
-              team_name: confirmDelete.team_name,
+              team_name: confirmDelete.eng_team_id,
             },
           };
           break;
@@ -288,7 +288,7 @@ export default function ViewPage() {
           payload = {
             tableName: "Engineer_Assignment",
             conditions: {
-              name: confirmDelete.name,
+              name: confirmDelete.eng_id,
             },
           };
           break;
