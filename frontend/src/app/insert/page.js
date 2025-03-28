@@ -11,29 +11,29 @@ export default function InsertPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState({ text: "", type: "" });
 
-  useEffect(() => {
-    const initializeSponsorTables = async () => {
-      try {
-        const response = await fetch("/api/initiate-sponsor-tables", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
+  // useEffect(() => {
+  //   const initializeSponsorTables = async () => {
+  //     try {
+  //       const response = await fetch("/api/initiate-sponsor-tables", {
+  //         method: "POST",
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //         },
+  //       });
 
-        const data = await response.json();
-        if (data.success) {
-          console.log("Sponsor tables initialized successfully");
-        } else {
-          console.error("Failed to initialize sponsor tables:", data.message);
-        }
-      } catch (error) {
-        console.error("Error initializing sponsor tables:", error);
-      }
-    };
+  //       const data = await response.json();
+  //       if (data.success) {
+  //         console.log("Sponsor tables initialized successfully");
+  //       } else {
+  //         console.error("Failed to initialize sponsor tables:", data.message);
+  //       }
+  //     } catch (error) {
+  //       console.error("Error initializing sponsor tables:", error);
+  //     }
+  //   };
 
-    initializeSponsorTables();
-  }, []);
+  //   initializeSponsorTables();
+  // }, []);
 
   const handleTableChange = (tableName) => {
     setSelectedTable(tableName);
