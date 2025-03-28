@@ -106,17 +106,17 @@ export default function ProjectionPage() {
     <div className="min-h-screen p-8 flex flex-col items-center">
       <header className="w-full max-w-3xl mb-8 text-center">
         <h1 className="text-3xl font-bold mb-2">
-          Engineer Assignment Projection
+          Engineer Projection
         </h1>
         <p className="text-gray-600 dark:text-gray-300">
-          Select fields to include in your query results
+          Select fields from the engineering team and assignments
         </p>
       </header>
 
       <main className="w-full max-w-5xl bg-white dark:bg-gray-800 rounded-lg shadow p-6">
         <MessageDisplay message={message} />
 
-        <ProjectionSelector
+        <ProjectionSelector 
           tableName={tableName}
           onApplyProjection={handleApplyProjection}
         />
