@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import TableSelect from "../../components/TableSelect";
 import MessageDisplay from "../../components/MessageDisplay";
 import UpdateForm from "../../components/UpdateForm";
-import ProjectionSelector from "../../components/ProjectionSelector";
 import { tableConfigs } from "../../utils/tableConfigs";
 
 export default function ViewPage() {
@@ -14,8 +13,6 @@ export default function ViewPage() {
   const [message, setMessage] = useState({ text: "", type: "" });
   const [editingRecord, setEditingRecord] = useState(null);
   const [confirmDelete, setConfirmDelete] = useState(null);
-
-  const [isUsingProjection, setIsUsingProjection] = useState(false);
 
   const availableTables = [
     "Sponsor",
@@ -29,65 +26,9 @@ export default function ViewPage() {
     setSelectedTable(tableName);
     setEditingRecord(null);
     setConfirmDelete(null);
-    setIsUsingProjection(false);
     if (tableName) {
       await fetchTableData(tableName);
     }
-  };
-
-  // Add a new handler for projection
-  const handleApplyProjection = async (selectedFields) => {
-    if (!selectedFields || selectedFields.length === 0) {
-      setMessage({
-        text: "Please select at least one field for projection",
-        type: "error",
-      });
-      return;
-    }
-
-    setIsLoading(true);
-    setMessage({ text: "", type: "" });
-
-    try {
-      const endpoint =
-        selectedTable === "Engineering_Team"
-          ? "/api/engineers/teams/projection"
-          : "/api/engineers/assignments/projection";
-
-      const response = await fetch(endpoint, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ fields: selectedFields }),
-      });
-
-      const result = await response.json();
-
-      if (result.success) {
-        setTableData(result.data);
-        setIsUsingProjection(true);
-        setMessage({
-          text: `Showing projection with ${selectedFields.length} selected fields`,
-          type: "success",
-        });
-      } else {
-        throw new Error(result.message || "Projection failed");
-      }
-    } catch (error) {
-      console.error("Error applying projection:", error);
-      setMessage({
-        text: `Error: ${error.message || "Failed to apply projection"}`,
-        type: "error",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleResetProjection = async () => {
-    setIsUsingProjection(false);
-    await fetchTableData(selectedTable);
   };
 
   const fetchTableData = async (tableName) => {
@@ -278,7 +219,7 @@ export default function ViewPage() {
           payload = {
             tableName: "Engineering_Team",
             conditions: {
-              eng_team_id: confirmDelete.eng_team_id, 
+              eng_team_id: confirmDelete.eng_team_id,
             },
           };
           break;
@@ -288,7 +229,7 @@ export default function ViewPage() {
           payload = {
             tableName: "Engineer_Assignment",
             conditions: {
-              eng_id: confirmDelete.eng_id, 
+              eng_id: confirmDelete.eng_id,
             },
           };
           break;
@@ -415,24 +356,11 @@ export default function ViewPage() {
         )}
 
         {!editingRecord && !confirmDelete && (
-          <>
-            <TableSelect
-              selectedTable={selectedTable}
-              onTableChange={handleTableChange}
-              tables={availableTables}
-            />
-
-            {selectedTable &&
-              (selectedTable === "Engineering_Team" ||
-                selectedTable === "Engineer_Assignment") && (
-                <div className="mt-4">
-                  <ProjectionSelector
-                    tableName={selectedTable}
-                    onApplyProjection={handleApplyProjection}
-                  />
-                </div>
-              )}
-          </>
+          <TableSelect
+            selectedTable={selectedTable}
+            onTableChange={handleTableChange}
+            tables={availableTables}
+          />
         )}
 
         {editingRecord && tableConfigs[selectedTable] && (
@@ -496,17 +424,6 @@ export default function ViewPage() {
                 {renderTableHeaders()}
                 {renderTableRows()}
               </table>
-
-              {isUsingProjection && (
-                <div className="mt-4 text-center">
-                  <button
-                    onClick={handleResetProjection}
-                    className="text-blue-600 hover:text-blue-800 text-sm font-medium"
-                  >
-                    Reset Projection (Show All Fields)
-                  </button>
-                </div>
-              )}
             </div>
           )}
       </main>
