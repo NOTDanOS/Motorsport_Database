@@ -215,6 +215,43 @@ async function updateEngineeringTeam({ oldTeamName, newTeamName, newDept, newHQ 
     });
 }
 
+async function deleteRows(tableName, conditions = {}, partial = false) {
+    return await withOracleDB(async (connection) => {
+        if (!tableName || Object.keys(conditions).length === 0) {
+            console.log("Table name and conditions are required");
+            return false;
+        }
+
+        const allowedTables = ["Engineer_Assignment", "Engineering_Team"];
+        if (!allowedTables.includes(tableName)) {
+            console.log("Table not allowed");
+            return false;
+        }
+
+        const whereClauses = [];
+        const bindParams = {};
+        let index = 0;
+
+        for (const [column, value] of Object.entries(conditions)) {
+            const bindKey = `val${index}`;
+            whereClauses.push(partial ? `${column} LIKE :${bindKey}` : `${column} = :${bindKey}`);
+            bindParams[bindKey] = partial ? `%${value}%` : value;
+            index++;
+        }
+
+        const sql = `DELETE FROM ${tableName} WHERE ${whereClauses.join(" AND ")}`;
+
+        try {
+            const result = await connection.execute(sql, bindParams, { autoCommit: true });
+            console.log(`Deleted ${result.rowsAffected} rows from ${tableName}`);
+            return result.rowsAffected;
+        } catch (error) {
+            console.error(`Error deleting rows from ${tableName}:`, error);
+            return false;
+        }
+    });
+}
+
 module.exports = {
     initiateEngineerTables,
     insertEngineeringTeam,
@@ -222,5 +259,6 @@ module.exports = {
     fetchEngineeringTeams,
     fetchEngineeringAssignment,
     updateEngineeringAssignment,
-    updateEngineeringTeam
+    updateEngineeringTeam,
+    deleteRows
 };
