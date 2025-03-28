@@ -92,6 +92,7 @@ router.get("/teams", async (req, res) => {
 
 router.post("/assignment-projection", async(req,res)=>{
     try{
+        const {fields}=req.body
         const eng_proj = await engineerService.fetchProjectedColumns({fields})
         return res.json({ success: true, data: eng_proj });
     } catch (err){
