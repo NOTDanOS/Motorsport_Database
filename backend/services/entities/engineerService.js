@@ -122,7 +122,7 @@ async function fetchEngineeringAssignment() {
             `);
 
       return result.rows.map((row) => ({
-        eng_id: row[0], 
+        eng_id: row[0],
         name: row[1],
         team_name: row[2],
         proficiency: row[3],
@@ -278,11 +278,9 @@ async function deleteRows(tableName, conditions = {}, partial = false) {
   });
 }
 
-async function fetchProjectedColumns({fields}) {
-
+async function fetchProjectedColumns({ fields }) {
   return await withOracleDB(async (connection) => {
     try {
-
       const columnMappings = {
         eng_id: "ea.eng_id",
         name: "ea.name",
@@ -290,38 +288,117 @@ async function fetchProjectedColumns({fields}) {
         proficiency: "ea.proficiency",
         years_experience: "ea.years_experience",
         department: "et.department",
-        hq_address: "et.HQ_address"
+        hq_address: "et.HQ_address",
       };
-      let columnsToUse = fields.length > 0 ? fields : Object.keys(columnMappings);
+      let columnsToUse =
+        fields.length > 0 ? fields : Object.keys(columnMappings);
       // putting as extra check need better handling tho
-      columnsToUse = columnsToUse.filter(field => columnMappings[field]);
+      columnsToUse = columnsToUse.filter((field) => columnMappings[field]);
 
-      const sqlColumns = columnsToUse.map(field => columnMappings[field]);
+      const sqlColumns = columnsToUse.map((field) => columnMappings[field]);
 
       const query = `
       SELECT ${sqlColumns.join(", ")}
       FROM Engineer_Assignment ea
       JOIN Engineering_Team et ON ea.eng_team_id = et.eng_team_id
     `;
-    
-    const result = await connection.execute(query);
 
+      const result = await connection.execute(query);
 
-    return result.rows.map(row => {
-      const obj = {};
-      columnsToUse.forEach((field, i) => {
-        obj[field] = row[i];
+      return result.rows.map((row) => {
+        const obj = {};
+        columnsToUse.forEach((field, i) => {
+          obj[field] = row[i];
+        });
+        return obj;
       });
-      return obj;
-    });
     } catch (error) {
       console.error("Error fetching engineering assignments:", error);
       throw error;
     }
   });
-  
+}
 
-  
+async function searchEngineers(conditions) {
+  return await withOracleDB(async (connection) => {
+    try {
+
+      let sql = `
+        SELECT ea.eng_id, ea.name, ea.proficiency, ea.years_experience, et.team_name
+        FROM Engineer_Assignment ea
+        JOIN Engineering_Team et ON ea.eng_team_id = et.eng_team_id
+        WHERE `;
+
+      // This array imm building
+      const params = [];
+
+
+      const whereClauses = conditions
+        .map((condition, index) => {
+          let clause = "";
+
+
+          if (index > 0) {
+            clause += ` ${condition.connector} `;
+          }
+
+
+          let fieldName;
+          switch (condition.field) {
+            case "name":
+              fieldName = "ea.name";
+              break;
+            case "proficiency":
+              fieldName = "ea.proficiency";
+              break;
+            case "years_experience":
+              fieldName = "ea.years_experience";
+              break;
+            case "team_name":
+              fieldName = "et.team_name";
+              break;
+            default:
+              fieldName = "ea.name";
+          }
+
+
+          switch (condition.operator) {
+            case "equals":
+              clause += `${fieldName} = ?`;
+              params.push(condition.value);
+              break;
+            case "contains":
+              clause += `${fieldName} LIKE ?`;
+              params.push(`%${condition.value}%`);
+              break;
+            default:
+              clause += `${fieldName} = ?`;
+              params.push(condition.value);
+          }
+
+          return clause;
+        })
+        .join("");
+
+
+      sql += whereClauses;
+
+
+      const [rows] = await connection.execute(sql, params);
+
+
+      return rows.map((row) => ({
+        eng_id: row[0],
+        name: row[1],
+        proficiency: row[2],
+        years_experience: row[3],
+        team_name: row[4],
+      }));
+    } catch (error) {
+      console.error("Search error:", error);
+      throw error;
+    }
+  });
 }
 
 module.exports = {
@@ -333,5 +410,6 @@ module.exports = {
   updateEngineeringAssignment,
   updateEngineeringTeam,
   deleteRows,
-  fetchProjectedColumns
+  fetchProjectedColumns,
+  searchEngineers,
 };
