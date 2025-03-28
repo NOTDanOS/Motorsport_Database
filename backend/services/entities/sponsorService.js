@@ -229,6 +229,42 @@ async function updateSponsor({ oldSponsorName, newSponsorName, newTierLevel, new
     });
 }
 
+async function deleteSponsorByID(sponsorId) {
+    return await withOracleDB(async (connection) => {
+        try {
+            const result = await connection.execute(
+                `DELETE FROM Sponsor WHERE sponsor_id = :sponsorId`,
+                [sponsorId]
+            );
+
+            await connection.commit();
+            return result.rowsAffected > 0;
+        } catch (error) {
+            console.error("Error deleting sponsor:", error);
+            await connection.rollback;
+            return false;
+        }
+    });
+}
+
+async function deleteSponsorTierByName(tierLevel) {
+    return await withOracleDB(async (connection) => {
+        try {
+            const result = await connection.execute(
+                `DELETE FROM Sponsor_Tier WHERE tier_level = :tierLevel`,
+                [tierLevel]
+            );
+
+            await connection.commit();
+            return result.rowsAffected > 0;
+        } catch (error) {
+            console.error("Error deleting sponsor tier:", error);
+            await connection.rollback();
+            return false;
+        }
+    });
+}
+
 module.exports = {
     initiateSponsorTables,
     insertSponsorTier,
@@ -240,5 +276,6 @@ module.exports = {
     updateSponsorTier,
     updateSponsor,
 
-
+    deleteSponsorByID,
+    deleteSponsorTierByName
 }
