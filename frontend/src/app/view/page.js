@@ -29,7 +29,7 @@ export default function ViewPage() {
     setSelectedTable(tableName);
     setEditingRecord(null);
     setConfirmDelete(null);
-    setIsUsingProjection(false); 
+    setIsUsingProjection(false);
     if (tableName) {
       await fetchTableData(tableName);
     }
@@ -273,11 +273,30 @@ export default function ViewPage() {
           };
           break;
 
+        case "Engineering_Team":
+          endpoint = "/api/engineers/delete";
+          payload = {
+            tableName: "Engineering_Team",
+            conditions: {
+              team_name: confirmDelete.team_name,
+            },
+          };
+          break;
+
+        case "Engineer_Assignment":
+          endpoint = "/api/engineers/delete";
+          payload = {
+            tableName: "Engineer_Assignment",
+            conditions: {
+              name: confirmDelete.name,
+            },
+          };
+          break;
+
         default:
           throw new Error("Unsupported table type for delete");
       }
 
-      // This is a placeholder for now WAITING FOR DANIEL to give me
       const response = await fetch(endpoint, {
         method: "DELETE",
         headers: {
@@ -403,7 +422,6 @@ export default function ViewPage() {
               tables={availableTables}
             />
 
-
             {selectedTable &&
               (selectedTable === "Engineering_Team" ||
                 selectedTable === "Engineer_Assignment") && (
@@ -478,7 +496,6 @@ export default function ViewPage() {
                 {renderTableHeaders()}
                 {renderTableRows()}
               </table>
-
 
               {isUsingProjection && (
                 <div className="mt-4 text-center">
