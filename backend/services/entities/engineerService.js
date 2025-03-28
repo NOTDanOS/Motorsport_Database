@@ -322,21 +322,17 @@ async function fetchProjectedColumns({ fields }) {
 async function searchEngineers(conditions) {
   return await withOracleDB(async (connection) => {
     try {
-
       let sql = `
         SELECT ea.eng_id, ea.name, ea.proficiency, ea.years_experience, et.team_name
         FROM Engineer_Assignment ea
         JOIN Engineering_Team et ON ea.eng_team_id = et.eng_team_id
         WHERE `;
 
-      // This array imm building
-      const params = [];
-
+      const bindParams = {};
 
       const whereClauses = conditions
         .map((condition, index) => {
           let clause = "";
-
 
           if (index > 0) {
             clause += ` ${condition.connector} `;
@@ -361,33 +357,31 @@ async function searchEngineers(conditions) {
               fieldName = "ea.name";
           }
 
+          const bindName = `param${index}`;
 
           switch (condition.operator) {
             case "equals":
-              clause += `${fieldName} = ?`;
-              params.push(condition.value);
+              clause += `${fieldName} = :${bindName}`;
+              bindParams[bindName] = condition.value;
               break;
             case "contains":
-              clause += `${fieldName} LIKE ?`;
-              params.push(`%${condition.value}%`);
+              clause += `${fieldName} LIKE :${bindName}`;
+              bindParams[bindName] = `%${condition.value}%`;
               break;
             default:
-              clause += `${fieldName} = ?`;
-              params.push(condition.value);
+              clause += `${fieldName} = :${bindName}`;
+              bindParams[bindName] = condition.value;
           }
 
           return clause;
         })
         .join("");
 
-
       sql += whereClauses;
 
+      const result = await connection.execute(sql, bindParams);
 
-      const [rows] = await connection.execute(sql, params);
-
-
-      return rows.map((row) => ({
+      return result.rows.map((row) => ({
         eng_id: row[0],
         name: row[1],
         proficiency: row[2],
