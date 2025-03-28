@@ -26,7 +26,7 @@ export default function ProjectionPage() {
       const endpoint = "/api/engineers/assignment-projection";
 
       const response = await fetch(endpoint, {
-        method: "POST",
+        method: "GET",
         headers: {
           "Content-Type": "application/json",
         },

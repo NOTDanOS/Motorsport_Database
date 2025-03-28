@@ -10,10 +10,13 @@ export default function ProjectionSelector({ tableName, onApplyProjection }) {
       setAvailableFields(["team_name", "department", "HQ_address"]);
     } else if (tableName === "Engineer_Assignment") {
       setAvailableFields([
+        "eng_id",
         "name",
         "team_name",
         "proficiency",
         "years_experience",
+        "department",
+        "hq_address"
       ]);
     }
 
