@@ -147,7 +147,7 @@ CREATE TABLE Project (
     CONSTRAINT fk_vehicle_id FOREIGN KEY (vehicle_id)
         REFERENCES Vehicle(vehicle_id)
         ON DELETE CASCADE,
-    CONSTRAINT fk_eng_team_id FOREIGN KEY (eng_team_id)
+    CONSTRAINT fk_project_eng_team FOREIGN KEY (eng_team_id)
         REFERENCES Engineering_Team(eng_team_id)
         ON DELETE SET NULL
 );
