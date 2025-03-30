@@ -40,17 +40,20 @@ CREATE TABLE Team(
 
 -- Sponsor and Sponsor_Tier
 CREATE TABLE Sponsor_Tier (
-    tier_level VARCHAR2(50) PRIMARY KEY,
-    amount_contributed NUMBER CHECK (amount_contributed >= 0)
+    tier_level VARCHAR2(50),
+    amount_contributed NUMBER CHECK (amount_contributed >= 0),
+    CONSTRAINT sponsor_tier_pk PRIMARY KEY (tier_level),
+    CONSTRAINT unique_amount_contributed UNIQUE (amount_contributed)
 );
 
 CREATE TABLE Sponsor(
     sponsor_id NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    sponsor_name VARCHAR2(50) NOT NULL UNIQUE,
+    sponsor_name VARCHAR2(50) NOT NULL,
     tier_level VARCHAR2(50),
     point_of_contact VARCHAR2(100),
-    CONSTRAINT fk_sponsor_tier FOREIGN KEY (tier_level) 
-        REFERENCES Sponsor_Tier(tier_level) 
+    CONSTRAINT unique_sponsor_name UNIQUE (sponsor_name),
+    CONSTRAINT fk_sponsor_tier FOREIGN KEY (tier_level)
+        REFERENCES Sponsor_Tier(tier_level)
         ON DELETE SET NULL
 );
 
@@ -204,7 +207,12 @@ INSERT INTO Team_Principal (team_principal, team_name) VALUES ('tp001', 'SpeedTe
 INSERT INTO Team (team_principal, year_founded) VALUES ('tp001', 1999);
 
 -- Sponsor Tier & Sponsor
+INSERT INTO Sponsor_Tier (tier_level, amount_contributed) VALUES ('Bronze', 100000);
+INSERT INTO Sponsor_Tier (tier_level, amount_contributed) VALUES ('Silver', 500000);
 INSERT INTO Sponsor_Tier (tier_level, amount_contributed) VALUES ('Gold', 1000000);
+INSERT INTO Sponsor_Tier (tier_level, amount_contributed) VALUES ('Platinum', 5000000);
+INSERT INTO Sponsor_Tier (tier_level, amount_contributed) VALUES ('Diamond', 10000000);
+
 INSERT INTO Sponsor (sponsor_name, tier_level, point_of_contact) 
 VALUES ('FastFuel Corp', 'Gold', 'Alice Morgan');
 

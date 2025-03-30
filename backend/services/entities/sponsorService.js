@@ -4,21 +4,21 @@ const { tableExists } = require("../../utils/tableExists");
 async function insertSponsorTiersIfNotExists() {
   return await withOracleDB(async (connection) => {
     const result = await connection.execute(
-      `SELECT COUNT(*) FROM Sponsor_Tier`
+        `SELECT COUNT(*) FROM Sponsor_Tier`
     );
 
     if (result.rows[0][0] === 0) {
       console.log("Inserting preset sponsor tiers...");
       await connection.executeMany(
-        `INSERT INTO Sponsor_Tier (tier_level, amount_contributed) VALUES (:tier, :amount)`,
-        [
-          { tier: "Bronze", amount: 100000 },
-          { tier: "Silver", amount: 500000 },
-          { tier: "Gold", amount: 1000000 },
-          { tier: "Platinum", amount: 5000000 },
-          { tier: "Diamond", amount: 10000000 },
-        ],
-        { autoCommit: true }
+          `INSERT INTO Sponsor_Tier (tier_level, amount_contributed) VALUES (:tier, :amount)`,
+          [
+            { tier: "Bronze", amount: 100000 },
+            { tier: "Silver", amount: 500000 },
+            { tier: "Gold", amount: 1000000 },
+            { tier: "Platinum", amount: 5000000 },
+            { tier: "Diamond", amount: 10000000 },
+          ],
+          { autoCommit: true }
       );
     } else {
       console.log("Sponsor tiers already exist. Skipping insert.");
@@ -42,51 +42,37 @@ async function initiateSponsorTables() {
 
       if (!sponsorTierExists) {
         await connection.execute(`
-                    CREATE TABLE Sponsor_Tier (
-                        tier_level VARCHAR2(50) PRIMARY KEY,
-                        amount_contributed NUMBER CHECK (amount_contributed >= 0)
-                    )
-                `);
+          CREATE TABLE Sponsor_Tier (
+              tier_level VARCHAR2(50),
+              amount_contributed NUMBER CHECK (amount_contributed >= 0),
+              CONSTRAINT sponsor_tier_pk PRIMARY KEY (tier_level),
+              CONSTRAINT unique_amount_contributed UNIQUE (amount_contributed)
+          )
+        `);
       }
 
       await insertSponsorTiersIfNotExists();
 
       if (!sponsorExists) {
         await connection.execute(`
-                    CREATE TABLE Sponsor(
-                        sponsor_id NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-                        sponsor_name VARCHAR2(50) NOT NULL UNIQUE,
-                        tier_level VARCHAR2(50),
-                        point_of_contact VARCHAR2(100),
-                        CONSTRAINT fk_sponsor_tier FOREIGN KEY (tier_level) 
-                            REFERENCES Sponsor_Tier(tier_level) 
-                            ON DELETE SET NULL
-                    )
-                `);
+          CREATE TABLE Sponsor(
+                                sponsor_id NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+                                sponsor_name VARCHAR2(50) NOT NULL,
+                                tier_level VARCHAR2(50),
+                                point_of_contact VARCHAR2(100),
+                                CONSTRAINT unique_sponsor_name UNIQUE (sponsor_name),
+                                CONSTRAINT fk_sponsor_tier FOREIGN KEY (tier_level)
+                                  REFERENCES Sponsor_Tier(tier_level)
+                                  ON DELETE SET NULL
+          )
+        `);
       }
-
-      /*if (!fundsExists) {
-                await connection.execute(`
-                    CREATE TABLE Funds (
-                        sponsor_id NUMBER PRIMARY KEY,
-                        team_id NUMBER PRIMARY KEY,
-                        contract_start_date DATE,
-                        contract_end_date DATE,
-                        CONSTRAINT fk_sponsor_id FOREIGN KEY (sponsor_id) 
-                            REFERENCES Sponsor(sponsor_id) 
-                            ON DELETE CASCADE FOREIGN KEY (sponsor_id),
-                        CONSTRAINT fk_team_id FOREIGN KEY (team_id)
-                            REFERENCES Team(team_id)
-                            ON DELETE CASCADE FOREIGN KEY (team_id)
-                    )
-                `);
-            }*/
 
       console.log("Sponsor tables created successfully.");
       return true;
     } catch (error) {
       console.error("Error checking/creating sponsor tables:", error);
-      return false;
+      throw error;
     }
   });
 }
@@ -95,19 +81,34 @@ async function insertSponsorTier(tierLevel, amountContributed) {
   return await withOracleDB(async (connection) => {
     try {
       const result = await connection.execute(
-        `INSERT INTO Sponsor_Tier (tier_level, amount_contributed) VALUES (:tier, :amount)`,
-        [tierLevel, amountContributed],
-        { autoCommit: true }
+          `INSERT INTO Sponsor_Tier (tier_level, amount_contributed) VALUES (:tier, :amount)`,
+          [tierLevel, amountContributed],
+          { autoCommit: true }
       );
 
-      await connection.commit();
-
-      return result.rowsAffected > 0;
+      return { success: result.rowsAffected > 0 };
     } catch (error) {
-      console.error("Error inserting sponsor tiers:", error);
+      if (error.message.includes("ORA-00001")) {
+        if (error.message.includes("SPONSOR_TIER_PK")) {
+          return {
+            success: false,
+            message: "Tier level already exists. Try a different name."
+          };
+        } else if (error.message.includes("UNIQUE_AMOUNT_CONTRIBUTED")) {
+          return {
+            success: false,
+            message: "Another tier already has this contribution amount. Choose a unique value."
+          };
+        } else {
+          return {
+            success: false,
+            message: "A duplicate value was detected. Please check your data."
+          };
+        }
+      }
 
-      await connection.rollback();
-      return false;
+      console.error("Error inserting sponsor tier:", error);
+      return { success: false, message: "Unexpected error occurred." };
     }
   });
 }
@@ -116,146 +117,195 @@ async function insertSponsor(sponsorName, tierLevel, pointOfContact) {
   return await withOracleDB(async (connection) => {
     try {
       const result = await connection.execute(
-        `INSERT INTO Sponsor (sponsor_name, tier_level, point_of_contact) 
-                 VALUES (:name, :tier, :contact)`,
-        [sponsorName, tierLevel, pointOfContact],
-        { autoCommit: true }
+          `INSERT INTO Sponsor (sponsor_name, tier_level, point_of_contact)
+           VALUES (:name, :tier, :contact)`,
+          [sponsorName, tierLevel, pointOfContact],
+          { autoCommit: true }
       );
 
-      await connection.commit();
-      
-
-      return result.rowsAffected > 0;
+      return { success: result.rowsAffected > 0 };
     } catch (error) {
-      console.error("Error inserting sponsor:", error);
+      if (error.message.includes("ORA-00001")) {
+        if (error.message.includes("UNIQUE_SPONSOR_NAME")) {
+          return {
+            success: false,
+            message: "A sponsor with that name already exists."
+          };
+        }
+      }
 
-      await connection.rollback();
-      return false;
+      if (error.message.includes("ORA-02291")) {
+        return {
+          success: false,
+          message: "The specified tier level does not exist. Please choose a valid one."
+        };
+      }
+
+      console.error("Error inserting sponsor:", error);
+      return { success: false, message: "Unexpected error occurred." };
     }
   });
 }
 
+
 async function fetchSponsorTiers() {
   return await withOracleDB(async (connection) => {
-    const result = await connection.execute(
-      `SELECT tier_level, amount_contributed FROM Sponsor_Tier`
-    );
-    return result.rows.map((row) => ({
-      tier_level: row[0],
-      amount_contributed: row[1],
-    }));
+    try {
+      const result = await connection.execute(
+          `SELECT tier_level, amount_contributed FROM Sponsor_Tier`
+      );
+      return result.rows.map((row) => ({
+        tier_level: row[0],
+        amount_contributed: row[1],
+      }));
+    } catch (error) {
+      console.error("Error fetching sponsor tiers:", error);
+      throw error;
+    }
   });
 }
 
 async function fetchSponsors() {
   return await withOracleDB(async (connection) => {
-    const result = await connection.execute(
-      `SELECT sponsor_name, tier_level, point_of_contact FROM Sponsor`
-    );
-    return result.rows.map((row) => ({
-      sponsor_name: row[0],
-      tier_level: row[1],
-      point_of_contact: row[2],
-    }));
+    try {
+      const result = await connection.execute(
+          `SELECT sponsor_name, tier_level, point_of_contact FROM Sponsor`
+      );
+      return result.rows.map((row) => ({
+        sponsor_name: row[0],
+        tier_level: row[1],
+        point_of_contact: row[2],
+      }));
+    } catch (error) {
+      console.error("Error fetching sponsors:", error);
+      throw error;
+    }
   });
 }
 
 async function updateSponsorTier({ oldName, newName, newAmount }) {
   return await withOracleDB(async (connection) => {
-    const updates = [];
-    const params = { oldName };
+    try {
+      const result = await connection.execute(
+          `UPDATE Sponsor_Tier
+           SET tier_level = :newName, amount_contributed = :newAmount
+           WHERE tier_level = :oldName`,
+          { newName, newAmount, oldName },
+          { autoCommit: true }
+      );
 
-    if (newName) {
-      updates.push(`tier_level = :newName`);
-      params.newName = newName;
+      if (result.rowsAffected === 0) {
+        return {
+          success: false,
+          message: `Tier '${oldName}' not found. No updates made.`
+        };
+      }
+
+      if (newAmount !== undefined && (isNaN(newAmount) || newAmount <= 0)) {
+        return {
+          success: false,
+          message: "Please input a valid new amount greater than 0."
+        };
+      }
+
+      return { success: true };
+    } catch (error) {
+      if (error.message.includes("ORA-00001")) {
+        if (error.message.includes("SPONSOR_TIER_PK")) {
+          return {
+            success: false,
+            message: "Tier level already exists. Try a different name."
+          };
+        } else if (error.message.includes("UNIQUE_AMOUNT_CONTRIBUTED")) {
+          return {
+            success: false,
+            message: "Another tier already has this contribution amount. Choose a unique value."
+          };
+        } else {
+          return {
+            success: false,
+            message: "A duplicate value was detected. Please check your data."
+          };
+        }
+      }
+
+      console.error("Error updating sponsor tier:", error);
+      return { success: false, message: "Unexpected error occurred." };
     }
-
-    if (newAmount !== undefined && newAmount !== null) {
-      updates.push(`amount_contributed = :newAmount`);
-      params.newAmount = newAmount;
-    }
-
-    if (updates.length === 0) {
-      console.log("No fields to update for sponsor tier.");
-      return false;
-    }
-
-    const query = `
-            UPDATE Sponsor_Tier
-            SET ${updates.join(", ")}
-            WHERE tier_level = :oldName
-        `;
-
-    const result = await connection.execute(query, params, {
-      autoCommit: true,
-    });
-    return result.rowsAffected && result.rowsAffected > 0;
-  }).catch((err) => {
-    console.error("Error updating sponsor tier:", err);
-    return false;
   });
 }
 
-async function updateSponsor({
-  oldSponsorName,
-  newSponsorName,
-  newTierLevel,
-  newPointOfContact,
-}) {
+
+async function updateSponsor({ oldSponsorName, newSponsorName, newTierLevel, newPointOfContact }) {
   return await withOracleDB(async (connection) => {
-    const updates = [];
-    const params = { oldSponsorName };
+    try {
+      const result = await connection.execute(
+          `UPDATE Sponsor
+           SET sponsor_name = :newSponsorName,
+               tier_level = :newTierLevel,
+               point_of_contact = :newPointOfContact
+           WHERE sponsor_name = :oldSponsorName`,
+          {
+            newSponsorName,
+            newTierLevel,
+            newPointOfContact,
+            oldSponsorName
+          },
+          { autoCommit: true }
+      );
 
-    if (newSponsorName) {
-      updates.push(`sponsor_name = :newSponsorName`);
-      params.newSponsorName = newSponsorName;
+      if (result.rowsAffected === 0) {
+        return {
+          success: false,
+          message: `Sponsor '${oldSponsorName}' not found. No updates made.`
+        };
+      }
+
+      return { success: true };
+    } catch (error) {
+      if (error.message.includes("ORA-00001")) {
+        if (error.message.includes("UNIQUE_SPONSOR_NAME")) {
+          return {
+            success: false,
+            message: "A sponsor with that name already exists."
+          };
+        } else {
+          return {
+            success: false,
+            message: "A duplicate value was detected. Please check your data."
+          };
+        }
+      }
+
+      if (error.message.includes("ORA-02291")) {
+        return {
+          success: false,
+          message: "The tier level you picked does not exist in the available sponsor tiers."
+        };
+      }
+
+      console.error("Error updating sponsor:", error);
+      return { success: false, message: "Unexpected error occurred." };
     }
-
-    if (newTierLevel) {
-      updates.push(`tier_level = :newTierLevel`);
-      params.newTierLevel = newTierLevel;
-    }
-
-    if (newPointOfContact) {
-      updates.push(`point_of_contact = :newPointOfContact`);
-      params.newPointOfContact = newPointOfContact;
-    }
-
-    if (updates.length === 0) {
-      console.log("No fields to update.");
-      return false;
-    }
-
-    const query = `
-            UPDATE Sponsor
-            SET ${updates.join(", ")}
-            WHERE sponsor_name = :oldSponsorName
-        `;
-
-    const result = await connection.execute(query, params, {
-      autoCommit: true,
-    });
-    return result.rowsAffected && result.rowsAffected > 0;
-  }).catch((err) => {
-    console.error("Error updating sponsor:", err);
-    return false;
   });
 }
+
+
 
 async function deleteSponsor({ sponsorName }) {
   return await withOracleDB(async (connection) => {
     try {
       const result = await connection.execute(
-        `DELETE FROM Sponsor WHERE sponsor_name = :sponsorName`,
-        { sponsorName },
-        { autoCommit: true }
+          `DELETE FROM Sponsor WHERE sponsor_name = :sponsorName`,
+          { sponsorName },
+          { autoCommit: true }
       );
 
       return result.rowsAffected > 0;
     } catch (error) {
       console.error("Error deleting sponsor:", error);
       await connection.rollback();
-      return false;
+      throw error;
     }
   });
 }
@@ -264,16 +314,32 @@ async function deleteSponsorTier({ tierLevel }) {
   return await withOracleDB(async (connection) => {
     try {
       const result = await connection.execute(
-        `DELETE FROM Sponsor_Tier WHERE tier_level = :tierLevel`,
-        { tierLevel },
-        { autoCommit: true }
+          `DELETE FROM Sponsor_Tier WHERE tier_level = :tierLevel`,
+          { tierLevel },
+          { autoCommit: true }
       );
 
       return result.rowsAffected > 0;
     } catch (error) {
       console.error("Error deleting sponsor tier:", error);
       await connection.rollback();
-      return false;
+      throw error;
+    }
+  });
+}
+
+async function dropTables() {
+  return await withOracleDB(async (connection) => {
+    try {
+      await connection.execute(`DROP TABLE Sponsor CASCADE CONSTRAINTS`);
+      await connection.execute(`DROP TABLE Sponsor_Tier CASCADE CONSTRAINTS`);
+
+      await connection.commit();
+      return true;
+    } catch (error) {
+      console.error("Error dropping sponsor tables:", error);
+      await connection.rollback();
+      throw error;
     }
   });
 }
@@ -291,4 +357,6 @@ module.exports = {
 
   deleteSponsor,
   deleteSponsorTier,
+
+  dropTables
 };
