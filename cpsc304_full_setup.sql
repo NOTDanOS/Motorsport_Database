@@ -339,5 +339,6 @@ INSERT INTO Competes_In (team_id, racing_series_id, ranking_in_series) VALUES (2
 INSERT INTO Competes_In (team_id, racing_series_id, ranking_in_series) VALUES (3, 3, 1);
 
 INSERT INTO Competes_In (team_id, racing_series_id, ranking_in_series) VALUES (1, 4, 5);
+INSERT INTO Competes_In (team_id, racing_series_id, ranking_in_series) VALUES (3, 4, 2);
 
 COMMIT;
