@@ -266,6 +266,7 @@ INSERT INTO Engineer_Assignment (name, proficiency, years_experience, eng_team_i
 INSERT INTO Engineer_Assignment (name, proficiency, years_experience, eng_team_id) VALUES ('Ben Hodgkinson', 'Expert', 22, 3);
 INSERT INTO Engineer_Assignment (name, proficiency, years_experience, eng_team_id) VALUES ('Adrian Newey', 'Legend', 35, 4);
 INSERT INTO Engineer_Assignment (name, proficiency, years_experience, eng_team_id) VALUES ('Pierre Wache', 'Senior', 16, 4);
+INSERT INTO Engineer_Assignment (name, proficiency, years_experience, eng_team_id) VALUES ('Rory McIlroy', 'Junior', 5, 4);
 INSERT INTO Engineer_Assignment (name, proficiency, years_experience, eng_team_id) VALUES ('Enrico Gualtieri', 'Expert', 19, 5);
 INSERT INTO Engineer_Assignment (name, proficiency, years_experience, eng_team_id) VALUES ('David Sanchez', 'Senior', 14, 6);
 INSERT INTO Engineer_Assignment (name, proficiency, years_experience, eng_team_id) VALUES ('Shinichi Kokubu', 'Expert', 28, 7);
