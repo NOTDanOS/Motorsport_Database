@@ -20,65 +20,64 @@ router.post("/initiate", async (req, res) => {
 
 router.post("/insert-tier", async (req, res) => {
   const { tierLevel, amountContributed } = req.body;
-  if (!tierLevel) {
-    return res
-      .status(400)
-      .json({ success: false, message: "Missing a tier level." });
-  }
 
   try {
-    const result = await sponsorService.insertSponsorTier(
-      tierLevel,
-      amountContributed
-    );
-    return res.json({ success: result });
+    const result = await sponsorService.insertSponsorTier(tierLevel, amountContributed);
+
+    if (result.success) {
+      return res.json({ success: true, message: "Tier inserted successfully!" });
+    } else {
+      return res.status(409).json({ success: false, message: result.message });
+    }
   } catch (err) {
-    return res
-      .status(500)
-      .json({
-        success: false,
-        message: "Failed to insert sponsor tier",
-        error: err.message,
-      });
+    return res.status(500).json({
+      success: false,
+      message: "Failed to insert sponsor tier.",
+      error: err.message
+    });
   }
 });
 
 router.post("/insert", async (req, res) => {
   const { sponsorName, tierLevel, pointOfContact } = req.body;
+
   if (!sponsorName || !tierLevel) {
-    return res
-      .status(400)
-      .json({
-        success: false,
-        message: "Missing a sponsor name and/or a tier level",
-      });
+    return res.status(400).json({
+      success: false,
+      message: "Missing a sponsor name and/or a tier level.",
+    });
   }
 
   try {
     const result = await sponsorService.insertSponsor(
-      sponsorName,
-      tierLevel,
-      pointOfContact
+        sponsorName,
+        tierLevel,
+        pointOfContact
     );
-    return res.json({ success: result });
+
+    if (result.success) {
+      return res.json({ success: true, message: "Sponsor inserted successfully!" });
+    } else {
+      return res.status(409).json({ success: false, message: result.message });
+    }
   } catch (err) {
-    return res
-      .status(500)
-      .json({
-        success: false,
-        message: "Failed to insert sponsor",
-        error: err.message,
-      });
+    return res.status(500).json({
+      success: false,
+      message: "Failed to insert sponsor.",
+      error: err.message,
+    });
   }
 });
 
-router.post("/update-tier", async (req, res) => {
+router.put("/update-tier", async (req, res) => {
   const { oldName, newName, newAmount } = req.body;
 
+  if (!oldName) {
+    return res.status(400).json({ success: false, message: "Missing tier name to update." });
+  }
+
   if (!newName && newAmount === undefined) {
-    return res
-      .status(400)
-      .json({ success: false, message: "No values given to update." });
+    return res.status(400).json({ success: false, message: "No values given to update." });
   }
 
   try {
@@ -88,7 +87,11 @@ router.post("/update-tier", async (req, res) => {
       newAmount,
     });
 
-    return res.json({ success: result });
+    if (result.success) {
+      return res.json({ success: true, message: "Sponsor tier updated successfully." });
+    } else {
+      return res.status(409).json({ success: false, message: result.message });
+    }
   } catch (err) {
     return res.status(500).json({
       success: false,
@@ -98,14 +101,16 @@ router.post("/update-tier", async (req, res) => {
   }
 });
 
-router.post("/update", async (req, res) => {
-  const { oldSponsorName, newSponsorName, newTierLevel, newPointOfContact } =
-    req.body;
 
-  if (!newSponsorName && newTierLevel && newPointOfContact === undefined) {
-    return res
-      .status(400)
-      .json({ success: false, message: "Double check your json file." });
+router.put("/update", async (req, res) => {
+  const { oldSponsorName, newSponsorName, newTierLevel, newPointOfContact } = req.body;
+
+  if (!oldSponsorName) {
+    return res.status(400).json({ success: false, message: "Missing sponsor name to update." });
+  }
+
+  if (!newSponsorName && !newTierLevel && newPointOfContact === undefined) {
+    return res.status(400).json({ success: false, message: "No values given to update." });
   }
 
   try {
@@ -116,7 +121,11 @@ router.post("/update", async (req, res) => {
       newPointOfContact,
     });
 
-    return res.json({ success: result });
+    if (result.success) {
+      return res.json({ success: true, message: "Sponsor updated successfully." });
+    } else {
+      return res.status(409).json({ success: false, message: result.message });
+    }
   } catch (err) {
     return res.status(500).json({
       success: false,
@@ -125,6 +134,8 @@ router.post("/update", async (req, res) => {
     });
   }
 });
+
+
 
 router.get("/tiers", async (req, res) => {
   try {
@@ -223,6 +234,23 @@ router.delete("/delete-tier", async (req, res) => {
         message: "Error deleting sponsor tier",
         error: err.message,
       });
+  }
+});
+
+router.delete("/drop", async (req, res) => {
+  try {
+    const dropped = await sponsorService.dropTables();
+    if (dropped) {
+      return res.json({ success: true, message: "Sponsor tables dropped successfully." });
+    } else {
+      return res.status(400).json({ success: false, message: "Tables were not dropped (may not exist)." });
+    }
+  } catch (err) {
+    return res.status(500).json({
+      success: false,
+      message: "Failed to delete sponsor tables",
+      error: err.message,
+    });
   }
 });
 

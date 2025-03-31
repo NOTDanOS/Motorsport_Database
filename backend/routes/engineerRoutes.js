@@ -87,7 +87,7 @@ router.get("/assignments", async (req, res) => {
   }
 });
 
-router.post("/update-assignment", async (req, res) => {
+router.put("/update-assignment", async (req, res) => {
   const { oldName, newName, newProficiency, newYearsExperience, newTeamId } =
     req.body;
 
@@ -157,7 +157,7 @@ router.post("/assignment-projection", async (req, res) => {
   }
 });
 
-router.post("/update-team", async (req, res) => {
+router.put("/update-team", async (req, res) => {
   const { oldTeamName, newTeamName, newDept, newHQ } = req.body;
 
   if (!oldTeamName) {
