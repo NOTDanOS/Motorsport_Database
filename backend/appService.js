@@ -6,6 +6,8 @@ const racingSeriesService = require("./services/entities/racingSeriesService");
 const driverService = require("./services/entities/driverService");
 const vehicleService = require("./services/entities/vehicleService");
 const engineerService = require("./services/entities/engineerService");
+const aggregateService = require("./services/queries/aggregateService");
+const { engineersPerTeam, teamsWithMultipleEngineers, experiencedEngineeringTeams, teamsInAllRacingSeries } = require("./services/queries/aggregateServices");
 
 
 
@@ -51,7 +53,10 @@ module.exports = {
     insertEngineeringTeam: engineerService.insertEngineeringTeam,
     insertEngineeringAssignment: engineerService.insertEngineeringAssignment,
     fetchEngineeringAssignment: engineerService.fetchEngineeringAssignment,
-    fetchEngineeringTeams: engineerService.fetchEngineeringTeams
+    fetchEngineeringTeams: engineerService.fetchEngineeringTeams,
 
-    // TODO: finish the rest
+    engineersPerTeam: aggregateService.engineersPerTeam,
+    teamsWithMultipleEngineers: aggregateService.teamsWithMultipleEngineers,
+    experiencedEngineeringTeams: aggregateService.experiencedEngineeringTeams,
+    teamsInAllRacingSeries: aggregateService.teamsInAllRacingSeries
 };
