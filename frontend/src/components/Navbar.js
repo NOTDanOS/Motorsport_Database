@@ -9,6 +9,7 @@ const navigation = [
   { name: "View", href: "/view" },
   { name: "Projection", href: "/projection" },
   { name: "Selection", href: "/selection" },
+  { name: "Join", href: "/join" },
   { name: "Aggregate", href: "/aggregate" },
 ];
 
