@@ -3,7 +3,8 @@ const router = express.Router();
 const {
     engineersPerTeam,
     teamsWithMultipleEngineers,
-    sponsorsWithAllTiers
+    experiencedEngineeringTeams,
+    teamsInAllRacingSeries
 } = require("../services/queries/aggregateServices");
 
 router.get("/engineers-per-team", async (req, res) => {
@@ -24,13 +25,22 @@ router.get("/teams-with-multiple-engineers", async (req, res) => {
     }
 });
 
-router.get("/sponsors-with-all-tiers", async (req, res) => {
+router.get("/experienced-engineering-teams", async (req, res) => {
     try {
-        const data = await sponsorsWithAllTiers();
+        const data = await experiencedEngineeringTeams();
         res.json({ success: true, data });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }
 });
+
+router.get("teams-in-all-racing-series", async (req, res) => {
+    try {
+        const data = await teamsInAllRacingSeries();
+        res.json({ success: true, data });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+})
 
 module.exports = router;
