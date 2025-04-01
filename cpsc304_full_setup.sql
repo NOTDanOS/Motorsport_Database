@@ -342,4 +342,8 @@ INSERT INTO Competes_In (team_id, racing_series_id, ranking_in_series) VALUES (3
 INSERT INTO Competes_In (team_id, racing_series_id, ranking_in_series) VALUES (1, 4, 5);
 INSERT INTO Competes_In (team_id, racing_series_id, ranking_in_series) VALUES (3, 4, 2);
 
+-- This is for demoing the last divsion query added can add more later 
+INSERT INTO Competes_In (team_id, racing_series_id, ranking_in_series) VALUES (2, 3, 2);
+INSERT INTO Competes_In (team_id, racing_series_id, ranking_in_series) VALUES (2, 4, 3);
+
 COMMIT;
