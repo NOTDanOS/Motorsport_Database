@@ -44,7 +44,7 @@ async function teamsInAllRacingSeries() {
             FROM Team T
             WHERE NOT EXISTS (SELECT RS.rs_id
                               FROM Racing_Series RS
-                              EXCEPT
+                              MINUS
                               SELECT CI.racing_series_id
                               FROM Competes_In CI
                               WHERE CI.team_id = T.team_id)
