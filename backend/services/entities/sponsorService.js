@@ -169,13 +169,12 @@ async function fetchSponsors() {
   return await withOracleDB(async (connection) => {
     try {
       const result = await connection.execute(
-          `SELECT sponsor_id, sponsor_name, tier_level, point_of_contact FROM Sponsor`
+          `SELECT sponsor_name, tier_level, point_of_contact FROM Sponsor`
       );
       return result.rows.map((row) => ({
-        sponsor_id: row[0],
-        sponsor_name: row[1],
-        tier_level: row[2],
-        point_of_contact: row[3],
+        sponsor_name: row[0],
+        tier_level: row[1],
+        point_of_contact: row[2],
       }));
     } catch (error) {
       console.error("Error fetching sponsors:", error);
