@@ -30,7 +30,7 @@ async function initiateTeamTables() {
                         year_founded   NUMBER(4) CHECK (year_founded BETWEEN 1000 AND 9999),
                         CONSTRAINT fk_team_principal FOREIGN KEY (team_principal)
                             REFERENCES Team_Principal (team_principal)
-                            ON DELETE SET NULL)
+                            ON DELETE CASCADE)
                             `);
             }
 
@@ -73,13 +73,19 @@ async function fetchTeams() {
     return await withOracleDB(async (connection) => {
         try {
             const result = await connection.execute(`
-                SELECT team_name, team_principal, year_founded FROM Team 
-                JOIN Team_Principal ON Team.team_principal = Team_Principal.team_principal
+                SELECT
+                    t.team_id,
+                    tp.team_name,
+                    tp.team_principal,
+                    t.year_founded
+                FROM Team t
+                    JOIN Team_Principal tp ON t.team_principal = tp.team_principal
             `);
             return result.rows.map(row => ({
-                team_name: row[0],
-                team_principal: row[1],
-                year_founded: row[2]
+                team_id: row[0],
+                team_name: row[1],
+                team_principal: row[2],
+                year_founded: row[3]
             }));
         } catch (error) {
             console.error("Error fetching teams:", error);
@@ -88,8 +94,25 @@ async function fetchTeams() {
     });
 }
 
+async function deleteTeamByName(teamName) {
+    return await withOracleDB(async (connection) => {
+        try {
+            const result = await connection.execute(
+                `DELETE FROM Team_Principal WHERE team_name = :teamName`,
+                [teamName],
+                { autoCommit: true }
+            );
+            return result.rowsAffected > 0;
+        } catch (error) {
+            console.error("Error deleting team:", error);
+            return false;
+        }
+    });
+}
+
 module.exports = {
     initiateTeamTables,
     insertTeamWithPrincipal,
-    fetchTeams
+    fetchTeams,
+    deleteTeamByName
 };

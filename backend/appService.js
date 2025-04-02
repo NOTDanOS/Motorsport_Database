@@ -7,6 +7,8 @@ const driverService = require("./services/entities/driverService");
 const vehicleService = require("./services/entities/vehicleService");
 const engineerService = require("./services/entities/engineerService");
 
+/*const fundsService = require("./services/relationships/fundsService");*/
+
 
 
 
@@ -51,7 +53,5 @@ module.exports = {
     insertEngineeringTeam: engineerService.insertEngineeringTeam,
     insertEngineeringAssignment: engineerService.insertEngineeringAssignment,
     fetchEngineeringAssignment: engineerService.fetchEngineeringAssignment,
-    fetchEngineeringTeams: engineerService.fetchEngineeringTeams
-
-    // TODO: finish the rest
+    fetchEngineeringTeams: engineerService.fetchEngineeringTeams,
 };
