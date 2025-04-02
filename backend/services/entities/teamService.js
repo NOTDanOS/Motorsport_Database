@@ -30,7 +30,7 @@ async function initiateTeamTables() {
                         year_founded   NUMBER(4) CHECK (year_founded BETWEEN 1000 AND 9999),
                         CONSTRAINT fk_team_principal FOREIGN KEY (team_principal)
                             REFERENCES Team_Principal (team_principal)
-                            ON DELETE CASCADE)
+                            ON DELETE SET NULL)
                             `);
             }
 
