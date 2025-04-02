@@ -118,7 +118,7 @@ async function fetchEngineeringAssignment() {
       const result = await connection.execute(`
                 SELECT ea.eng_id, ea.name, et.team_name, ea.proficiency, ea.years_experience
                 FROM Engineer_Assignment ea
-                JOIN Engineering_Team et ON ea.eng_team_id = et.eng_team_id
+                LEFT JOIN Engineering_Team et ON ea.eng_team_id = et.eng_team_id
             `);
 
       return result.rows.map((row) => ({
