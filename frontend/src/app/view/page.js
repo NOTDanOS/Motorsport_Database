@@ -153,13 +153,17 @@ export default function ViewPage() {
         }
       }
 
+      console.log(`Sending update to endpoint: ${endpoint}`, payload);
+
       const response = await fetch(endpoint, {
-        method: "POST",
+        method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(payload),
       });
+
+
 
       const result = await response.json();
 
