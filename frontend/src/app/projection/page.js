@@ -55,7 +55,7 @@ export default function ProjectionPage() {
       setIsLoading(false);
     }
   };
-//   https://saurabhnativeblog.medium.com/rendering-a-table-in-react-from-a-json-array-using-object-keys-and-object-values-062046973780
+// Source: https://saurabhnativeblog.medium.com/rendering-a-table-in-react-from-a-json-array-using-object-keys-and-object-values-062046973780
 
 // My flowbite rendering wasnt working properly so using this TODO if I habve time will revert to flowbite
   const renderTableHeaders = () => {

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 // The flowbite package wasn't installing properly so referenced their tailwind examples
-// https://flowbite.com/docs/components/jumbotron/#jumbotron-with-cards
+// Source: https://flowbite.com/docs/components/jumbotron/#jumbotron-with-cards
 export default function Home() {
   return (
     <section className="bg-white dark:bg-gray-900 min-h-screen">
