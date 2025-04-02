@@ -13,6 +13,8 @@ export default function AggregatePage() {
   const queryColumnHeaders = {
     "engineers-per-team": ["Team Name", "Engineer Count"],
     "teams-with-multiple-engineers": ["Team Name", "Engineer Count"],
+    "experienced-engineering-teams": ["Team ID", "Average Experience"],
+    "teams-in-all-series": ["Team ID"],
   };
 
   const aggregateQueries = [
@@ -25,6 +27,16 @@ export default function AggregatePage() {
       id: "teams-with-multiple-engineers",
       name: "Teams With Multiple Engineers",
       description: "Shows teams that have more than one engineer assigned",
+    },
+    {
+      id: "experienced-engineering-teams",
+      name: "Experienced Engineering Teams",
+      description: "Engineering teams with above average experience levels",
+    },
+    {
+      id: "teams-in-all-series",
+      name: "Teams In All Racing Series",
+      description: "Teams that participate in all racing series",
     },
   ];
 

@@ -8,13 +8,11 @@ router.post("/initiate", async (req, res) => {
     const result = await engineerService.initiateEngineerTables();
     return res.json({ success: result });
   } catch (err) {
-    return res
-      .status(500)
-      .json({
-        success: false,
-        message: "Failed to initiate engineer tables",
-        error: err.message,
-      });
+    return res.status(500).json({
+      success: false,
+      message: "Failed to initiate engineer tables",
+      error: err.message,
+    });
   }
 });
 
@@ -34,13 +32,11 @@ router.post("/insert-team", async (req, res) => {
     );
     return res.json({ success: result });
   } catch (err) {
-    return res
-      .status(500)
-      .json({
-        success: false,
-        message: "Failed to insert engineering team",
-        error: err.message,
-      });
+    return res.status(500).json({
+      success: false,
+      message: "Failed to insert engineering team",
+      error: err.message,
+    });
   }
 });
 
@@ -62,13 +58,11 @@ router.post("/insert-assignment", async (req, res) => {
     );
     return res.json({ success: result });
   } catch (err) {
-    return res
-      .status(500)
-      .json({
-        success: false,
-        message: "Failed to insert engineering assignment",
-        error: err.message,
-      });
+    return res.status(500).json({
+      success: false,
+      message: "Failed to insert engineering assignment",
+      error: err.message,
+    });
   }
 });
 
@@ -77,13 +71,11 @@ router.get("/assignments", async (req, res) => {
     const assignments = await engineerService.fetchEngineeringAssignment();
     return res.json({ success: true, data: assignments });
   } catch (err) {
-    return res
-      .status(500)
-      .json({
-        success: false,
-        message: "Failed to fetch engineering assignments",
-        error: err.message,
-      });
+    return res.status(500).json({
+      success: false,
+      message: "Failed to fetch engineering assignments",
+      error: err.message,
+    });
   }
 });
 
@@ -92,12 +84,10 @@ router.put("/update-assignment", async (req, res) => {
     req.body;
 
   if (!oldName) {
-    return res
-      .status(400)
-      .json({
-        success: false,
-        message: "Missing original engineer name (oldName)",
-      });
+    return res.status(400).json({
+      success: false,
+      message: "Missing original engineer name (oldName)",
+    });
   }
 
   if (
@@ -135,13 +125,11 @@ router.get("/teams", async (req, res) => {
     const teams = await engineerService.fetchEngineeringTeams();
     return res.json({ success: true, data: teams });
   } catch (err) {
-    return res
-      .status(500)
-      .json({
-        success: false,
-        message: "Failed to fetch engineering teams",
-        error: err.message,
-      });
+    return res.status(500).json({
+      success: false,
+      message: "Failed to fetch engineering teams",
+      error: err.message,
+    });
   }
 });
 
@@ -161,12 +149,10 @@ router.put("/update-team", async (req, res) => {
   const { oldTeamName, newTeamName, newDept, newHQ } = req.body;
 
   if (!oldTeamName) {
-    return res
-      .status(400)
-      .json({
-        success: false,
-        message: "Missing original team name (oldTeamName)",
-      });
+    return res.status(400).json({
+      success: false,
+      message: "Missing original team name (oldTeamName)",
+    });
   }
 
   if (!newTeamName && !newDept && !newHQ) {
@@ -226,13 +212,36 @@ router.post("/search", async (req, res) => {
 
     return res.json({ success: true, data: engineers });
   } catch (err) {
-    return res
-      .status(500)
-      .json({
+    return res.status(500).json({
+      success: false,
+      message: "Failed to search engineers",
+      error: err.message,
+    });
+  }
+});
+
+router.post("/join", async (req, res) => {
+  try {
+    const { department } = req.body;
+
+    if (!department) {
+      return res.status(400).json({
         success: false,
-        message: "Failed to search engineers",
-        error: err.message,
+        message: "Department name is required",
       });
+    }
+
+    const engineers = await engineerService.getEngineersByDepartment(
+      department
+    );
+
+    return res.json({ success: true, data: engineers });
+  } catch (err) {
+    return res.status(500).json({
+      success: false,
+      message: "Failed to fetch engineers by department",
+      error: err.message,
+    });
   }
 });
 
