@@ -69,7 +69,7 @@ router.post("/insert", async (req, res) => {
   }
 });
 
-router.put("/update-tier", async (req, res) => {
+router.post("/update-tier", async (req, res) => {
   const { oldName, newName, newAmount } = req.body;
 
   if (!oldName) {
@@ -102,7 +102,7 @@ router.put("/update-tier", async (req, res) => {
 });
 
 
-router.put("/update", async (req, res) => {
+router.post("/update", async (req, res) => {
   const { oldSponsorName, newSponsorName, newTierLevel, newPointOfContact } = req.body;
 
   if (!oldSponsorName) {
