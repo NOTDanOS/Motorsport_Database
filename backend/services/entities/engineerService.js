@@ -115,11 +115,16 @@ async function fetchEngineeringTeams() {
 async function fetchEngineeringAssignment() {
   return await withOracleDB(async (connection) => {
     try {
+      // const result = await connection.execute(`
+      //           SELECT ea.eng_id, ea.name, et.team_name, ea.proficiency, ea.years_experience
+      //           FROM Engineer_Assignment ea
+      //           JOIN Engineering_Team et ON ea.eng_team_id = et.eng_team_id
+      //       `);
       const result = await connection.execute(`
-                SELECT ea.eng_id, ea.name, et.team_name, ea.proficiency, ea.years_experience
-                FROM Engineer_Assignment ea
-                LEFT JOIN Engineering_Team et ON ea.eng_team_id = et.eng_team_id
-            `);
+        SELECT ea.eng_id, ea.name, et.team_name, ea.proficiency, ea.years_experience
+        FROM Engineer_Assignment ea
+        LEFT JOIN Engineering_Team et ON ea.eng_team_id = et.eng_team_id
+    `);
 
       return result.rows.map((row) => ({
         eng_id: row[0],
