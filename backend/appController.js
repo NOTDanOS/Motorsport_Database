@@ -10,6 +10,8 @@ const racingSeriesRoutes = require('./routes/racingSeriesRoutes');
 const driverRoutes = require('./routes/driverRoutes');
 const engineerRoutes = require('./routes/engineerRoutes');
 const vehicleRoutes = require('./routes/vehicleRoutes');
+/*const fundsRoutes = require('./routes/fundsRoutes');*/
+
 const aggregateRoutes = require('./routes/aggregateRoutes');
 
 // ----------------------------------------------------------
@@ -30,7 +32,7 @@ router.use('/racing-series', racingSeriesRoutes);
 router.use('/drivers', driverRoutes);
 router.use('/vehicles', vehicleRoutes);
 router.use('/engineers', engineerRoutes);
-/*router.use('/funds', fundRoutes);*/
+/*router.use('/funds', fundsRoutes);*/
 router.use('/api/db', dbInitRoutes);
 router.use('/aggregate', aggregateRoutes);
 

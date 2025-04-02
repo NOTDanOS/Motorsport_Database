@@ -32,7 +32,7 @@ async function initializeAllTables() {
                 drivers: driverTablesResult,
                 racingSeries: racingSeriesTablesResult,
                 vehicles: vehicleTablesResult,
-                funds: fundsTableResult
+                /*funds: fundsTableResult*/
             }
         };
     } catch (error) {
