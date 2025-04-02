@@ -63,7 +63,7 @@ async function initiateSponsorTables() {
                                 CONSTRAINT unique_sponsor_name UNIQUE (sponsor_name),
                                 CONSTRAINT fk_sponsor_tier FOREIGN KEY (tier_level)
                                   REFERENCES Sponsor_Tier(tier_level)
-                                  ON DELETE SET NULL
+                                  ON DELETE CASCADE
           )
         `);
       }
