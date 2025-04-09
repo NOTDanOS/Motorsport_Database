@@ -310,6 +310,7 @@ async function deleteSponsor({ sponsorName }) {
   });
 }
 
+// Deleting a sponsor tier will also delete all associated sponsors due to the ON DELETE CASCADE constraint on sponsor_tier in Sponsor
 async function deleteSponsorTier({ tierLevel }) {
   return await withOracleDB(async (connection) => {
     try {
