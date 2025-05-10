@@ -63,7 +63,7 @@ async function initiateSponsorTables() {
                                 CONSTRAINT unique_sponsor_name UNIQUE (sponsor_name),
                                 CONSTRAINT fk_sponsor_tier FOREIGN KEY (tier_level)
                                   REFERENCES Sponsor_Tier(tier_level)
-                                  ON DELETE SET NULL
+                                  ON DELETE CASCADE
           )
         `);
       }
@@ -310,6 +310,7 @@ async function deleteSponsor({ sponsorName }) {
   });
 }
 
+// Deleting a sponsor tier will also delete all associated sponsors due to the ON DELETE CASCADE constraint on sponsor_tier in Sponsor
 async function deleteSponsorTier({ tierLevel }) {
   return await withOracleDB(async (connection) => {
     try {

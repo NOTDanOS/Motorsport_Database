@@ -115,11 +115,16 @@ async function fetchEngineeringTeams() {
 async function fetchEngineeringAssignment() {
   return await withOracleDB(async (connection) => {
     try {
+      // const result = await connection.execute(`
+      //           SELECT ea.eng_id, ea.name, et.team_name, ea.proficiency, ea.years_experience
+      //           FROM Engineer_Assignment ea
+      //           JOIN Engineering_Team et ON ea.eng_team_id = et.eng_team_id
+      //       `);
       const result = await connection.execute(`
-                SELECT ea.eng_id, ea.name, et.team_name, ea.proficiency, ea.years_experience
-                FROM Engineer_Assignment ea
-                JOIN Engineering_Team et ON ea.eng_team_id = et.eng_team_id
-            `);
+        SELECT ea.eng_id, ea.name, et.team_name, ea.proficiency, ea.years_experience
+        FROM Engineer_Assignment ea
+        LEFT JOIN Engineering_Team et ON ea.eng_team_id = et.eng_team_id
+    `);
 
       return result.rows.map((row) => ({
         eng_id: row[0],
@@ -338,7 +343,6 @@ async function searchEngineers(conditions) {
             clause += ` ${condition.connector} `;
           }
 
-
           let fieldName;
           switch (condition.field) {
             case "name":
@@ -395,6 +399,32 @@ async function searchEngineers(conditions) {
   });
 }
 
+async function getEngineersByDepartment(department) {
+  return await withOracleDB(async (connection) => {
+    try {
+      const result = await connection.execute(
+        `SELECT ea.name, ea.proficiency, ea.years_experience, et.team_name, et.department, et.HQ_address
+         FROM Engineer_Assignment ea
+         JOIN Engineering_Team et ON ea.eng_team_id = et.eng_team_id
+         WHERE LOWER(et.department) LIKE LOWER(:department)`,
+        { department: `%${department}%` }
+      );
+
+      return result.rows.map((row) => ({
+        name: row[0],
+        proficiency: row[1],
+        years_experience: row[2],
+        team_name: row[3],
+        department: row[4],
+        hq_address: row[5],
+      }));
+    } catch (error) {
+      console.error("Error fetching engineers by department:", error);
+      throw error;
+    }
+  });
+}
+
 module.exports = {
   initiateEngineerTables,
   insertEngineeringTeam,
@@ -406,4 +436,5 @@ module.exports = {
   deleteRows,
   fetchProjectedColumns,
   searchEngineers,
+  getEngineersByDepartment,
 };

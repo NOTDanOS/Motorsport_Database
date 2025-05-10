@@ -1,5 +1,4 @@
-/*
-const {withOracleDB} = require("../../utils/oracleHelper");
+/*const {withOracleDB} = require("../../utils/oracleHelper");
 const {tableExists} = require("../../utils/tableExists");
 
 
@@ -53,7 +52,7 @@ async function insertFunds(sponsorID, teamID, contractStart, contractEnd) {
 
             return result.rowsAffected > 0;
         } catch (error) {
-            console.error("Error inserting sponsor:", error);
+            console.error("Error inserting sponsor to team:", error);
 
             await connection.rollback();
             return false;
